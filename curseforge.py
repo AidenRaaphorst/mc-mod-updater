@@ -55,10 +55,11 @@ def get_mod(slug: str):
     except IndexError:
         return None
     except json.decoder.JSONDecodeError as e:
-        print("Something went wrong, an error log has been made.")
-        with open('error-log.txt', 'w') as f:
-            f.write(e)
-        return None
+        get_mod(slug)
+        # print("Something went wrong, an error log has been made.")
+        # with open('error-log.txt', 'w') as f:
+        #     f.write(e)
+        # return None
 
 
 def get_latest_mod_file(mod_id, game_version: str, mod_loader_type: int = 4, page_size: int = 200):
@@ -104,7 +105,8 @@ def get_latest_mod_file(mod_id, game_version: str, mod_loader_type: int = 4, pag
     except IndexError:
         return None
     except json.decoder.JSONDecodeError as e:
-        print("Something went wrong, an error log has been made.")
-        with open('error-log.txt', 'w') as f:
-            f.write(e)
-        return None
+        get_latest_mod_file(mod_id, game_version, mod_loader_type, page_size)
+        # print("Something went wrong, an error log has been made.")
+        # with open('error-log.txt', 'w') as f:
+        #     f.write(e)
+        # return None
