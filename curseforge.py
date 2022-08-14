@@ -1,3 +1,4 @@
+import json
 import os
 import requests
 from dotenv import load_dotenv  # If not installed, run: pip install python-dotenv
@@ -53,6 +54,11 @@ def get_mod(slug: str):
         ).json()['data'][0]
     except IndexError:
         return None
+    except json.decoder.JSONDecodeError as e:
+        print("Something went wrong, an error log has been made.")
+        with open('error-log.txt', 'w') as f:
+            f.write(e)
+        return None
 
 
 def get_latest_mod_file(mod_id, game_version: str, mod_loader_type: int = 4, page_size: int = 200):
@@ -91,7 +97,14 @@ def get_latest_mod_file(mod_id, game_version: str, mod_loader_type: int = 4, pag
 
         for file in files:
             major_game_version = f"{game_version.split('.')[0]}.{game_version.split('.')[1]}"
-            if not file['gameVersions'].__contains__(f"{major_game_version}-Snapshot"):
+            has_snapshot = file['gameVersions'].__contains__(f"{major_game_version}-Snapshot")
+            has_correct_version = file['gameVersions'].__contains__(game_version)
+            if (not has_snapshot) or (has_snapshot and has_correct_version):
                 return file
     except IndexError:
+        return None
+    except json.decoder.JSONDecodeError as e:
+        print("Something went wrong, an error log has been made.")
+        with open('error-log.txt', 'w') as f:
+            f.write(e)
         return None
