@@ -18,7 +18,6 @@ def get_api_key():
     return os.getenv("CURSEFORGE_API_KEY")
 
 
-API_KEY = get_api_key()
 API_BASE = 'https://api.curseforge.com'
 API_VERSION = 'v1'
 API_URL = f'{API_BASE}/{API_VERSION}'
@@ -29,7 +28,7 @@ CATEGORY_ID = 6  # Mods
 load_dotenv()
 headers = {
     'Accept': 'application/json',
-    'x-api-key': API_KEY
+    'x-api-key': get_api_key()
 }
 
 
