@@ -214,7 +214,7 @@ clear_screen()
 
 show_download_urls()
 if not mod_urls:
-    print("There are no mods that can be downloaded.")
+    print("There are no downloadable mods.")
     input("Press Enter to exit")
     exit()
 remove_mod_urls()
