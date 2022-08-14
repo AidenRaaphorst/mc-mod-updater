@@ -67,7 +67,7 @@ def get_mc_mod_loader_type():
         get_mc_mod_loader_type()
 
 
-def show_download_urls():
+def show_mod_results():
     if mods_not_found:
         print("Mods that could not be found:")
         for mod in mods_not_found:
@@ -80,13 +80,23 @@ def show_download_urls():
             print(f" - '{mod}'")
         print()
 
-    print("Mod download URL's:")
-    for i, mod in enumerate(mod_urls):
-        print(f" {i + 1}. {mod}")
-    print()
+    if mod_urls:
+        print("Downloadable mods:")
+        for i, mod in enumerate(mod_urls):
+            # Make numbers align to the right
+            digits = len(str(len(mod_urls))) - len(str(i + 1))
+            number = f"{' ' * digits}{i + 1}"
+
+            print(f" {number}. {utils.get_slug_from_url(mod)}")
+        print()
 
 
 def remove_mod_urls():
+    if not mod_urls:
+        print("There are no downloadable mods.")
+        input("Press Enter to exit")
+        exit()
+
     print("Are the mods correct?")
     print("If not, enter the number next to the mod to remove it.")
     print("To select multiple mods, separate them with a comma.")
@@ -98,18 +108,18 @@ def remove_mod_urls():
     if mod_numbers == ['']:
         return
 
-    for number in mod_numbers:
+    for number in reversed(mod_numbers):
         try:
             if int(number) == 0:
                 raise IndexError
 
             mod_urls.pop(int(number) - 1)
-        except IndexError:
+        except (IndexError, ValueError):
             print("That is not an option.")
             input("Press Enter to try again")
 
     clear_screen()
-    show_download_urls()
+    show_mod_results()
     remove_mod_urls()
 
 
@@ -171,7 +181,7 @@ if not os.path.exists("mods.txt"):
 
 current_mod_urls = utils.get_urls_from_file('mods.txt')
 current_mod_slugs = utils.get_slugs_from_file('mods.txt')
-print("Url's found:")
+print("URL's found:")
 for url in current_mod_urls:
     print(url)
 print()
@@ -192,6 +202,7 @@ print("Looking for mods online, this can take some time depending on the API...\
 mod_urls = []
 mods_not_found = []
 mods_incorrect_version = []
+
 for slug in current_mod_slugs:
     print(f"Looking for mod '{slug}'")
     try:
@@ -210,12 +221,7 @@ for slug in current_mod_slugs:
         print(f"Error: Could not find file '{slug}' for version '{mc_version}'.")
 clear_screen()
 
-if not mod_urls:
-    print("There are no mods found.")
-    input("Press Enter to exit")
-    exit()
-
-show_download_urls()
+show_mod_results()
 remove_mod_urls()
 clear_screen()
 
