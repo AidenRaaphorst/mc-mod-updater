@@ -1,0 +1,15 @@
+.env
+mods.txt
+venv/
+__pycache__/
+
+# Pycharm
+.idea/
+
+# Testing files
+testing/
+output/
+MCModUpdaterV2.png
+modrinth.py
+scroll.py
+testing.py
