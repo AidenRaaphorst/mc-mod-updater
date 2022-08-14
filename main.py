@@ -172,7 +172,7 @@ if not os.path.exists("mods.txt"):
 
 current_mod_urls = utils.get_urls_from_file('mods.txt')
 current_mod_slugs = utils.get_slugs_from_file('mods.txt')
-print("Url's found:")
+print("URL's found:")
 for url in current_mod_urls:
     print(url)
 print()
