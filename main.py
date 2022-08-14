@@ -80,10 +80,11 @@ def show_download_urls():
             print(f" - '{mod}'")
         print()
 
-    print("Mod download URL's:")
-    for i, mod in enumerate(mod_urls):
-        print(f" {i + 1}. {mod}")
-    print()
+    if mod_urls:
+        print("Mod download URL's:")
+        for i, mod in enumerate(mod_urls):
+            print(f" {i + 1}. {mod}")
+        print()
 
 
 def remove_mod_urls():
@@ -192,6 +193,7 @@ print("Looking for mods online, this can take some time depending on the API...\
 mod_urls = []
 mods_not_found = []
 mods_incorrect_version = []
+
 for slug in current_mod_slugs:
     print(f"Looking for mod '{slug}'")
     try:
@@ -210,12 +212,11 @@ for slug in current_mod_slugs:
         print(f"Error: Could not find file '{slug}' for version '{mc_version}'.")
 clear_screen()
 
+show_download_urls()
 if not mod_urls:
-    print("There are no mods found.")
+    print("There are no mods that can be downloaded.")
     input("Press Enter to exit")
     exit()
-
-show_download_urls()
 remove_mod_urls()
 clear_screen()
 
