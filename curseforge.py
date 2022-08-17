@@ -55,10 +55,11 @@ def get_mod(slug: str):
     except IndexError:
         return None
     except json.decoder.JSONDecodeError as e:
-        print("Something went wrong, an error log has been made.")
-        with open('error-log.txt', 'w') as f:
-            f.write(e)
-        return None
+        get_mod(slug)
+        # print("Something went wrong, an error log has been made.")
+        # with open('error-log.txt', 'w') as f:
+        #     f.write(e)
+        # return None
 
 
 def get_latest_mod_file(mod_id, game_version: str, mod_loader_type: int = 4, page_size: int = 200):
@@ -97,14 +98,16 @@ def get_latest_mod_file(mod_id, game_version: str, mod_loader_type: int = 4, pag
 
         for file in files:
             major_game_version = f"{game_version.split('.')[0]}.{game_version.split('.')[1]}"
-            has_snapshot = file['gameVersions'].__contains__(f"{major_game_version}-Snapshot")
-            has_correct_version = file['gameVersions'].__contains__(game_version)
+            has_snapshot = f"{major_game_version}-Snapshot" in file['gameVersions']
+            has_correct_version = game_version in file['gameVersions']
             if (not has_snapshot) or (has_snapshot and has_correct_version):
                 return file
     except IndexError:
         return None
     except json.decoder.JSONDecodeError as e:
-        print("Something went wrong, an error log has been made.")
-        with open('error-log.txt', 'w') as f:
-            f.write(e)
-        return None
+        print("Something went wrong, trying again...")
+        get_latest_mod_file(mod_id, game_version, mod_loader_type, page_size)
+        # print("Something went wrong, an error log has been made.")
+        # with open('error-log.txt', 'w') as f:
+        #     f.write(e)
+        # return None
