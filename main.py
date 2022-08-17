@@ -40,26 +40,26 @@ def get_mc_version():
 
 def get_mc_mod_loader_type():
     print("Modloaders:")
-    print(" - Any")
-    print(" - Forge")
-    print(" - Cauldron")
-    print(" - LiteLoader")
-    print(" - Fabric")
-    print(" - Quilt")
+    print(" 1. Any")
+    print(" 2. Fabric")
+    print(" 3. Forge")
+    print(" 4. Quilt")
+    print(" 5. LiteLoader")
+    print(" 6. Cauldron")
     mod_loader = input("\nMinecraft mod loader (leave empty for Fabric): ").lower()
 
-    if mod_loader == "" or mod_loader == "fabric":
-        return 4
-    elif mod_loader == "any":
+    if mod_loader == "any" or mod_loader == "1":
         return 0
-    elif mod_loader == "forge":
+    elif mod_loader == "" or mod_loader == "fabric" or mod_loader == "2":
+        return 4
+    elif mod_loader == "forge" or mod_loader == "3":
         return 1
-    elif mod_loader == "quilt":
+    elif mod_loader == "quilt" or mod_loader == "4":
         return 5
-    elif mod_loader == "cauldron":
-        return 2
-    elif mod_loader == "liteLoader":
+    elif mod_loader == "liteLoader" or mod_loader == "5":
         return 3
+    elif mod_loader == "cauldron" or mod_loader == "6":
+        return 2
     else:
         print("\nThat was not an option.")
         input("Press Enter to try again")
@@ -103,20 +103,27 @@ def remove_mod_urls():
     print("Example: 1, 2, 5")
     print()
     mod_numbers = input("Select number(s) (leave empty if everything is correct): ").split(", ")
-    print()
 
     if mod_numbers == ['']:
         return
 
-    for number in reversed(mod_numbers):
-        try:
-            if int(number) == 0:
-                raise IndexError
+    try:
+        mod_numbers = [int(x) for x in mod_numbers]
+    except ValueError:
+        print("\nThat is not an option.")
+        input("Press Enter to try again")
+        clear_screen()
+        show_mod_results()
+        remove_mod_urls()
+        return
 
-            mod_urls.pop(int(number) - 1)
-        except (IndexError, ValueError):
-            print("That is not an option.")
+    for number in sorted(mod_numbers, reverse=True):
+        if number == 0 or number > len(mod_urls):
+            print("\nThat is not an option.")
             input("Press Enter to try again")
+            break
+
+        mod_urls.pop(number-1)
 
     clear_screen()
     show_mod_results()
@@ -168,20 +175,20 @@ clear_screen()
 # Check if 'mods.txt' exists, if not, create it and put some comments in
 if not os.path.exists("mods.txt"):
     with open('mods.txt', 'w') as f:
-        f.write("# Put the mod url's here.\n")
-        f.write("# Only works with CurseForge url's for now.\n")
+        f.write("# Put the mod URLs here.\n")
+        f.write("# Only works with CurseForge URLs for now.\n")
         f.write("# Example (without the '#'):\n")
         f.write("# https://www.curseforge.com/minecraft/mc-mods/fabric-api")
         f.write("\n")
         f.write("\n")
 
-    print("File 'mods.txt' was created, put mod url's in the file and save before continuing.")
+    print("File 'mods.txt' was created, put mod URLs in the file and save before continuing.")
     input("Press Enter when done")
     clear_screen()
 
 current_mod_urls = utils.get_urls_from_file('mods.txt')
 current_mod_slugs = utils.get_slugs_from_file('mods.txt')
-print("URL's found:")
+print("URLs found:")
 for url in current_mod_urls:
     print(url)
 print()
