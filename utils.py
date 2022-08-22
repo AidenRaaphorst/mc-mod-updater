@@ -31,7 +31,7 @@ def get_urls_from_file(file: str):
     urls = []
     with open(file) as f:
         for line in f:
-            if not line == '\n' and not line.__contains__('#'):
+            if not line == '\n' and not line.startswith('#'):
                 urls.append(line.strip())
     return urls
 
