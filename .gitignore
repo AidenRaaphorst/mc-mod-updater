@@ -1,5 +1,5 @@
 .env
-mods.txt
+*mods.txt
 venv/
 __pycache__/
 
