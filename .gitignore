@@ -10,6 +10,6 @@ __pycache__/
 testing/
 output/
 MCModUpdaterV2.png
-modrinth.py
 scroll.py
 testing.py
+testing.json
