@@ -4,15 +4,50 @@ import requests
 from dotenv import load_dotenv  # If not installed, run: pip install python-dotenv
 
 
-# Get API key
+class ModNotFoundException(Exception):
+    """
+    Exception raised when a mod is not found.
+
+    Attributes:
+        mod -- mod which caused the error
+        message -- explanation of the error
+    """
+
+    def __init__(self, mod, message="Mod was not found"):
+        self.mod = mod
+        self.message = message
+        super().__init__(self.message)
+
+    def __str__(self):
+        return f"'{self.mod}' -> {self.message}"
+
+
+class ModVersionNotFoundException(Exception):
+    """
+    Exception raised when a game version of a mod is not found.
+
+    Attributes:
+        version -- version of mod which caused the error
+        message -- explanation of the error
+    """
+
+    def __init__(self, version, message=f"Version of mod was not found"):
+        self.version = version
+        self.message = message
+        super().__init__(self.message)
+
+    def __str__(self):
+        return f"'{self.version}' -> {self.message}"
+
+
 def get_api_key():
     if not os.path.exists('.env'):
         print("It appears that this is the first time you have executed this program.")
-        print("In order to use this program, you need an API key.")
-        print("Go to this link 'https://console.curseforge.com/' and create/login into your account.")
-        print("After getting into your account, go to the tab 'API keys' on the left and copy the key.\n")
-        key = input("Insert API key here: ")
-        print()
+        print("In order to download mods from CurseForge, you'll need an API key.")
+        print("To get an api key, go to this link 'https://console.curseforge.com/' and create/login into your account.")
+        print("After getting into your account, go to the tab 'API keys' on the left and copy the key.")
+        key = input("\nInsert API key here: ")
+
         with open('.env', 'w') as f:
             f.write(f"CURSEFORGE_API_KEY={key}")
 
@@ -33,10 +68,10 @@ headers = {
 }
 
 
-def get_mod(slug: str):
+def get_mod_from_slug(slug: str):
     """
-    Returns the mod given by the params.
-    Returns None if no mod was found.
+    Returns the mod given by the slug.
+    Raises ModNotFoundException if no mod was found.
     """
 
     url = f"{API_URL}/mods/search"
@@ -46,40 +81,41 @@ def get_mod(slug: str):
         'slug': slug
     }
 
-    try:
-        return requests.get(
-            url,
-            params=params,
-            headers=headers
-        ).json()['data'][0]
-    except IndexError:
-        return None
-    except json.decoder.JSONDecodeError as e:
-        get_mod(slug)
-        # print("Something went wrong, an error log has been made.")
-        # with open('error-log.txt', 'w') as f:
-        #     f.write(e)
-        # return None
+    err = 0
+
+    while True:
+        try:
+            return requests.get(
+                url,
+                params=params,
+                headers=headers
+            ).json()['data'][0]
+        except IndexError:
+            raise ModNotFoundException(slug)
+        except json.decoder.JSONDecodeError:
+            # Retry 3 times before raising exception
+            if err == 3:
+                raise ModNotFoundException(slug)
+
+            err += 1
+            print(f"Something went wrong, trying again ({err})...")
+            continue
 
 
-def get_latest_mod_file(mod_id, game_version: str, mod_loader_type: int = 4, page_size: int = 200):
+def get_latest_mod_file(mod_id, game_version: str, mod_loader_type: int = 0, page_size: int = 200):
     """
-    Returns the latest file given by the params.
-    Returns None if no file was found.
+    Returns the latest file that matches the params. \n
+    Raises ModNotFoundException if no mod was found. \n
+    Raises ModVersionNotFoundException if no file was found. \n
 
-    Mod loader type can be:
-
-    0=Any
-
-    1=Forge
-
-    2=Cauldron
-
-    3=LiteLoader
-
-    4=Fabric
-
-    5=Quilt
+    Mod loader type can be: \n
+    0=Any \n
+    1=Forge \n
+    2=Cauldron \n
+    3=LiteLoader \n
+    4=Fabric \n
+    5=Quilt \n
+    Modloader defaults to 0.
     """
 
     url = f"{API_URL}/mods/{mod_id}/files"
@@ -89,25 +125,32 @@ def get_latest_mod_file(mod_id, game_version: str, mod_loader_type: int = 4, pag
         'pageSize': page_size
     }
 
-    try:
-        files = requests.get(
-            url,
-            params=params,
-            headers=headers
-        ).json()['data']
+    err = 0
 
-        for file in files:
-            major_game_version = f"{game_version.split('.')[0]}.{game_version.split('.')[1]}"
-            has_snapshot = f"{major_game_version}-Snapshot" in file['gameVersions']
-            has_correct_version = game_version in file['gameVersions']
-            if (not has_snapshot) or (has_snapshot and has_correct_version):
-                return file
-    except IndexError:
-        return None
-    except json.decoder.JSONDecodeError as e:
-        print("Something went wrong, trying again...")
-        get_latest_mod_file(mod_id, game_version, mod_loader_type, page_size)
-        # print("Something went wrong, an error log has been made.")
-        # with open('error-log.txt', 'w') as f:
-        #     f.write(e)
-        # return None
+    while True:
+        try:
+            files = requests.get(
+                url,
+                params=params,
+                headers=headers
+            ).json()['data']
+
+            for file in files:
+                major_game_version = f"{game_version.split('.')[0]}.{game_version.split('.')[1]}"
+                has_snapshot = f"{major_game_version}-Snapshot" in file['gameVersions']
+                has_correct_version = game_version in file['gameVersions']
+                if (not has_snapshot) or (has_snapshot and has_correct_version):
+                    return file
+
+            # If no correct version is found, raise ModVersionNotFoundException
+            raise ModVersionNotFoundException(game_version)
+        except IndexError:
+            raise ModNotFoundException(mod_id)
+        except json.decoder.JSONDecodeError:
+            # Retry 3 times before raising exception
+            if err == 3:
+                raise ModVersionNotFoundException(game_version)
+
+            err += 1
+            print(f"Something went wrong, trying again ({err})...")
+            continue
