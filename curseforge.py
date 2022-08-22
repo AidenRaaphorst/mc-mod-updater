@@ -3,6 +3,8 @@ import os
 import requests
 from dotenv import load_dotenv  # If not installed, run: pip install python-dotenv
 
+import utils
+
 
 class ModNotFoundException(Exception):
     """
@@ -42,6 +44,7 @@ class ModVersionNotFoundException(Exception):
 
 def get_api_key():
     if not os.path.exists('.env'):
+        utils.clear()
         print("It appears that this is the first time you have executed this program.")
         print("In order to download mods from CurseForge, you'll need an API key.")
         print("To get an api key, go to this link 'https://console.curseforge.com/' and create/login into your account.")
