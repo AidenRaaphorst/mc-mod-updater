@@ -54,6 +54,8 @@ def get_api_key():
         with open('.env', 'w') as f:
             f.write(f"CURSEFORGE_API_KEY={key}")
 
+        return key
+
     return os.getenv("CURSEFORGE_API_KEY")
 
 
