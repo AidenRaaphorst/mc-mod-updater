@@ -134,19 +134,19 @@ def look_for_mods():
 
 def show_mod_results():
     if mods_not_found:
-        print("Mods that could not be found:")
+        print(f"Mods that could not be found: ({len(mods_not_found)})")
         for mod in mods_not_found:
             print(f" - '{mod}'")
         print()
 
     if mods_incorrect_version:
-        print(f"Mods that did not have version '{mc_version}':")
+        print(f"Mods that did not have version '{mc_version}': ({len(mods_incorrect_version)})")
         for mod in mods_incorrect_version:
             print(f" - '{mod}'")
         print()
 
     if downloadable_mods_urls:
-        print("Downloadable mods:")
+        print(f"Downloadable mods: ({len(downloadable_mods_urls)})")
         for i, mod in enumerate(downloadable_mods_urls):
             # Make numbers align to the right
             digit_spacing = len(str(len(downloadable_mods_urls))) - len(str(i + 1))
