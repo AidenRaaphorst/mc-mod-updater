@@ -142,7 +142,8 @@ def get_latest_mod_file(mod_id, game_version: str, mod_loader_type: int = 0, pag
                 major_game_version = f"{game_version.split('.')[0]}.{game_version.split('.')[1]}"
                 has_snapshot = f"{major_game_version}-Snapshot" in file['gameVersions']
                 has_correct_version = game_version in file['gameVersions']
-                if (not has_snapshot) or (has_snapshot and has_correct_version):
+                has_download_file = file['downloadUrl'] is not None
+                if ((not has_snapshot) or (has_snapshot and has_correct_version)) and has_download_file:
                     return file
 
             # If no correct version is found, raise ModVersionNotFoundException
