@@ -1,5 +1,5 @@
 .env
-mods.txt
+*mods.txt
 venv/
 __pycache__/
 
@@ -10,6 +10,6 @@ __pycache__/
 testing/
 output/
 MCModUpdaterV2.png
-modrinth.py
 scroll.py
 testing.py
+testing.json
