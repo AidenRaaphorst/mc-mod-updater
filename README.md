@@ -9,6 +9,7 @@ TODO:
 
 # Installation
 For Windows, go to the [releases](https://github.com/AidenRaaphorst/mc-mod-updater/releases) and download the exe file.  
+When opening the file, you may get a Microsoft Defender SmartScreen pop-up, this is because I don't have money to buy a license, just click 'More info' and 'Run anyway'.  
 For Linux and macOS, download the source code and run `main.py`.
 
 The first time you use the app, it will ask for a CurseForge API key.  
