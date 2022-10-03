@@ -1,6 +1,8 @@
+import asyncio
 import os
 import shutil
 import time
+import httpx
 import curseforge
 import modrinth
 import utils
@@ -83,48 +85,60 @@ def get_mc_mod_loader():
 def look_for_mods():
     global curseforge_mod_loader_type, modrinth_mod_loader
 
-    print("Looking for mods online, this can take some time depending on the API...\n")
-    for url in text_file_urls:
-        slug = utils.get_slug_from_url(url)
+    async def get_mods(urls: list[str]):
+        async def handle_response_curseforge(response: httpx.Response, mod):
+            slug = str(response.request.url).split("&slug=")[1]
 
-        if "modrinth" in url:
-            # Modrinth
-            print(f"Looking for mod '{slug}' using Modrinth")
-            try:
-                mod_file = modrinth.get_latest_mod_file(
-                    mod_slug=slug,
-                    game_version=mc_version,
-                    mod_loader=modrinth_mod_loader
-                )
-                downloadable_mods_urls.append(mod_file['files'][0]['url'])
-                print(f"Found latest file for '{slug}' for version '{mc_version}'.")
-            except modrinth.ModNotFoundException:
-                mods_not_found.append(slug)
-                print(f"Error: Could not find file for mod '{slug}'.")
-            except modrinth.ModVersionNotFoundException:
-                mods_incorrect_version.append(slug)
-                print(f"Error: Could not find file '{slug}' for version '{mc_version}'.")
-        elif "curseforge" in url:
-            # CurseForge
-            print(f"Looking for mod '{slug}' using CurseForge")
-            try:
-                mod_id = curseforge.get_mod_from_slug(slug)['id']
-                mod_file = curseforge.get_latest_mod_file(
-                    mod_id=mod_id,
+            if mod is not None:
+                file = await curseforge.get_latest_mod_file_async(
+                    mod_id=mod['id'],
                     game_version=mc_version,
                     mod_loader_type=curseforge_mod_loader_type
                 )
-                downloadable_mods_urls.append(mod_file['downloadUrl'])
-                print(f"Found latest file for '{slug}' for version '{mc_version}'.")
-            except curseforge.ModNotFoundException:
+
+                if file is not None:
+                    print(f"Found file '{file['fileName']}'")
+                    downloadable_mods_urls.append(file['downloadUrl'])
+                else:
+                    print(f"Couldn't find file url for '{response.request.url}'")
+                    mods_not_found.append(slug)
+            else:
+                print(f"Couldn't find mod '{slug}'")
                 mods_not_found.append(slug)
-                print(f"Error: Could not find file for mod '{slug}'.")
-            except curseforge.ModVersionNotFoundException:
-                mods_incorrect_version.append(slug)
-                print(f"Error: Could not find file '{slug}' for version '{mc_version}'.")
-        else:
-            mods_not_found.append(slug)
-            print(f"Error: Could not find file for mod '{slug}', because the website that was linked is not supported.")
+
+        async def handle_response_modrinth(response: httpx.Response, file):
+            if file is not None:
+                print(f"Found file '{file['files'][0]['filename']}'")
+                downloadable_mods_urls.append(file['files'][0]['url'])
+            else:
+                print(f"Couldn't find file url for '{response.request.url}'")
+                mods_not_found.append(str(response.url).split('/')[-2])
+
+        tasks = []
+        for url in urls:
+            slug = utils.get_slug_from_url(url)
+            if "curseforge" in url:
+                print(f"Looking for '{slug}' using Curseforge")
+                tasks.append(curseforge.get_mod_from_slug_async(
+                    slug=slug,
+                    after_response_funcs=[handle_response_curseforge]
+                ))
+            elif "modrinth" in url:
+                print(f"Looking for '{slug}' using Modrinth")
+                tasks.append(modrinth.get_latest_mod_file_async(
+                    mod_slug=slug,
+                    game_version=mc_version,
+                    mod_loader=modrinth_mod_loader,
+                    after_response_funcs=[handle_response_modrinth]
+                ))
+            else:
+                print(f"URL '{url}' is not supported")
+        print()
+        # print("\nGetting files...")
+        return await asyncio.gather(*tasks)
+
+    print("Looking for mods online, this can take some time depending on the API...\n")
+    asyncio.run(get_mods(text_file_urls))
 
 
 def show_mod_results():
@@ -147,7 +161,6 @@ def show_mod_results():
             digit_spacing = len(str(len(downloadable_mods_urls))) - len(str(i + 1))
             number = f"{' ' * digit_spacing}{i + 1}"
 
-            # print(f" {number}. {utils.get_slug_from_url(mod)}")
             print(f" {number}. {utils.get_file_name_from_url(mod)}")
         print()
 
