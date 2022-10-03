@@ -1,15 +1,10 @@
 import os
 import shutil
 import time
-
 import curseforge
 import modrinth
 import utils
 from utils import clear
-
-
-curseforge_mod_loader_type = None
-modrinth_mod_loader = None
 
 
 def clear_screen():
@@ -282,7 +277,6 @@ def confirm_settings():
 
 
 clear_screen()
-
 # Check if 'mods.txt' exists, if not, create it and put some comments in
 if not os.path.exists("mods.txt"):
     with open("mods.txt", "w") as f:
@@ -300,30 +294,36 @@ if not os.path.exists("mods.txt"):
     clear_screen()
 
 text_file_urls = utils.get_urls_from_file("mods.txt")
+if not text_file_urls:
+    print("No URLs found.")
+    print("Make sure the URLs are in a file named 'mods.txt', without the #")
+    print("Example:")
+    print("https://www.curseforge.com/minecraft/mc-mods/fabric-api")
+    input("\nPress Enter to exit")
+    exit()
+
 print("URLs found:")
 for url in text_file_urls:
     print(url)
 input("\nPress Enter to continue")
 clear_screen()
 
-mod_folder = get_mod_dir()
-clear_screen()
-
+# Default values
+curseforge_mod_loader_type = 4
+modrinth_mod_loader = "fabric"
+mod_folder = f"C:/Users/{os.getlogin()}/AppData/Roaming/.minecraft/mods"
 mc_version = get_mc_version()
-clear_screen()
-
-mod_loader = get_mc_mod_loader()
-clear_screen()
-
-choice_move_old_mods = get_choice_move_old_mods()
-clear_screen()
-
-confirm_settings()
-clear_screen()
+mod_loader = "Fabric"
+choice_move_old_mods = "yes"
 
 downloadable_mods_urls = []
 mods_not_found = []
 mods_incorrect_version = []
+
+clear_screen()
+
+confirm_settings()
+clear_screen()
 
 look_for_mods()
 clear_screen()
