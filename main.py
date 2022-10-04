@@ -97,10 +97,10 @@ def look_for_mods():
                 )
 
                 if file is not None:
-                    print(f"Found file '{file['fileName']}'")
+                    print(f"Found file for '{slug}'")
                     downloadable_mods_urls.append(file['downloadUrl'])
                 else:
-                    print(f"Couldn't find file url for '{response.request.url}'")
+                    print(f"Couldn't find file url for '{slug}'")
                     mods_not_found.append(slug)
             else:
                 print(f"Couldn't find mod '{slug}'")
@@ -139,6 +139,8 @@ def look_for_mods():
 
     print("Looking for mods online, this can take some time depending on the API...\n")
     asyncio.run(get_mods(text_file_urls))
+    downloadable_mods_urls.sort(key=lambda mod: mod.split("/")[-1].lower())
+    mods_not_found.sort()
 
 
 def show_mod_results():
