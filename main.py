@@ -1,5 +1,7 @@
 import asyncio
 import os
+import pathlib
+import platform
 import shutil
 import time
 import httpx
@@ -17,21 +19,30 @@ def clear_screen():
     print()
 
 
-def get_mod_dir():
-    while True:
-        default = f"C:/Users/{os.getlogin()}/AppData/Roaming/.minecraft/mods"
+def get_mod_dir(return_default: bool = None):
+    system = platform.system()
+    if system == "Windows":
+        default = os.path.expanduser(r"~\AppData\Roaming\.minecraft\mods")
+    elif system == "Linux":
+        default = os.path.expanduser("~/.minecraft/mods")
+    elif system == "Darwin":
+        default = os.path.expanduser("~/Library/Application Support/minecraft/mods")
+    else:
+        default = ""
+
+    if return_default and default != "":
+        return default
+
+    if default != "":
         print(f"Default is '{default}'")
         location = input("Minecraft mods folder location (leave empty for default): ")
+    else:
+        location = input("Minecraft mods folder location: ")
 
-        if location == "":
-            return default
-        else:
-            if not os.path.exists(location):
-                print("\nError: Folder does not exist.")
-                input("Press Enter to try again")
-                clear_screen()
-                continue
-            return location
+    if location == "":
+        return default
+    else:
+        return location
 
 
 def get_mc_version():
@@ -217,6 +228,9 @@ def get_choice_move_old_mods():
 
 def move_old_mods():
     new_folder = "Backup " + time.strftime("%Y-%m-%d %H.%M.%S", time.localtime())
+    if not os.path.exists(mod_folder):
+        pathlib.Path(mod_folder).mkdir(parents=True, exist_ok=True)
+
     os.mkdir(os.path.join(mod_folder, new_folder))
 
     print(f"Moving old mods to backup folder named '{new_folder}'...\n")
@@ -326,7 +340,7 @@ clear_screen()
 # Default values
 curseforge_mod_loader_type = 4
 modrinth_mod_loader = "fabric"
-mod_folder = f"C:/Users/{os.getlogin()}/AppData/Roaming/.minecraft/mods"
+mod_folder = get_mod_dir(return_default=True)
 mc_version = get_mc_version()
 mod_loader = "Fabric"
 choice_move_old_mods = "yes"
