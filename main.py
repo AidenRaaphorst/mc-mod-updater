@@ -1,15 +1,14 @@
+import asyncio
 import os
+import pathlib
+import platform
 import shutil
 import time
-
+import httpx
 import curseforge
 import modrinth
 import utils
 from utils import clear
-
-
-curseforge_mod_loader_type = None
-modrinth_mod_loader = None
 
 
 def clear_screen():
@@ -20,21 +19,30 @@ def clear_screen():
     print()
 
 
-def get_mod_dir():
-    while True:
-        default = f"C:/Users/{os.getlogin()}/AppData/Roaming/.minecraft/mods"
+def get_mod_dir(return_default: bool = None):
+    system = platform.system()
+    if system == "Windows":
+        default = os.path.expanduser(r"~\AppData\Roaming\.minecraft\mods")
+    elif system == "Linux":
+        default = os.path.expanduser("~/.minecraft/mods")
+    elif system == "Darwin":
+        default = os.path.expanduser("~/Library/Application Support/minecraft/mods")
+    else:
+        default = ""
+
+    if return_default and default != "":
+        return default
+
+    if default != "":
         print(f"Default is '{default}'")
         location = input("Minecraft mods folder location (leave empty for default): ")
+    else:
+        location = input("Minecraft mods folder location: ")
 
-        if location == "":
-            return default
-        else:
-            if not os.path.exists(location):
-                print("\nError: Folder does not exist.")
-                input("Press Enter to try again")
-                clear_screen()
-                continue
-            return location
+    if location == "":
+        return default
+    else:
+        return location
 
 
 def get_mc_version():
@@ -88,61 +96,76 @@ def get_mc_mod_loader():
 def look_for_mods():
     global curseforge_mod_loader_type, modrinth_mod_loader
 
-    print("Looking for mods online, this can take some time depending on the API...\n")
-    for url in text_file_urls:
-        slug = utils.get_slug_from_url(url)
+    async def get_mods(urls: list[str]):
+        async def handle_response_curseforge(response: httpx.Response, mod):
+            slug = str(response.request.url).split("&slug=")[1]
 
-        if "modrinth" in url:
-            # Modrinth
-            print(f"Looking for mod '{slug}' using Modrinth")
-            try:
-                mod_file = modrinth.get_latest_mod_file(
-                    mod_slug=slug,
-                    game_version=mc_version,
-                    mod_loader=modrinth_mod_loader
-                )
-                downloadable_mods_urls.append(mod_file['files'][0]['url'])
-                print(f"Found latest file for '{slug}' for version '{mc_version}'.")
-            except modrinth.ModNotFoundException:
-                mods_not_found.append(slug)
-                print(f"Error: Could not find file for mod '{slug}'.")
-            except modrinth.ModVersionNotFoundException:
-                mods_incorrect_version.append(slug)
-                print(f"Error: Could not find file '{slug}' for version '{mc_version}'.")
-        elif "curseforge" in url:
-            # CurseForge
-            print(f"Looking for mod '{slug}' using CurseForge")
-            try:
-                mod_id = curseforge.get_mod_from_slug(slug)['id']
-                mod_file = curseforge.get_latest_mod_file(
-                    mod_id=mod_id,
+            if mod is not None:
+                file = await curseforge.get_latest_mod_file_async(
+                    mod_id=mod['id'],
                     game_version=mc_version,
                     mod_loader_type=curseforge_mod_loader_type
                 )
-                downloadable_mods_urls.append(mod_file['downloadUrl'])
-                print(f"Found latest file for '{slug}' for version '{mc_version}'.")
-            except curseforge.ModNotFoundException:
+
+                if file is not None:
+                    print(f"Found file for '{slug}'")
+                    downloadable_mods_urls.append(file['downloadUrl'])
+                else:
+                    print(f"Couldn't find file url for '{slug}'")
+                    mods_not_found.append(slug)
+            else:
+                print(f"Couldn't find mod '{slug}'")
                 mods_not_found.append(slug)
-                print(f"Error: Could not find file for mod '{slug}'.")
-            except curseforge.ModVersionNotFoundException:
-                mods_incorrect_version.append(slug)
-                print(f"Error: Could not find file '{slug}' for version '{mc_version}'.")
-        else:
-            mods_not_found.append(slug)
-            print(f"Error: Could not find file for mod '{slug}', because the website that was linked is not supported.")
+
+        async def handle_response_modrinth(response: httpx.Response, file):
+            if file is not None:
+                print(f"Found file '{file['files'][0]['filename']}'")
+                downloadable_mods_urls.append(file['files'][0]['url'])
+            else:
+                slug = str(response.url).split('/')[-2]
+                print(f"Couldn't find file url for '{slug}'")
+                mods_not_found.append(slug)
+
+        tasks = []
+        for url in urls:
+            slug = utils.get_slug_from_url(url)
+            if "curseforge" in url:
+                print(f"Looking for '{slug}' using Curseforge")
+                tasks.append(curseforge.get_mod_from_slug_async(
+                    slug=slug,
+                    after_response_funcs=[handle_response_curseforge]
+                ))
+            elif "modrinth" in url:
+                print(f"Looking for '{slug}' using Modrinth")
+                tasks.append(modrinth.get_latest_mod_file_async(
+                    mod_slug=slug,
+                    game_version=mc_version,
+                    mod_loader=modrinth_mod_loader,
+                    after_response_funcs=[handle_response_modrinth]
+                ))
+            else:
+                print(f"URL '{url}' is not supported")
+        print()
+        # print("\nGetting files...")
+        return await asyncio.gather(*tasks)
+
+    print("Looking for mods online, this can take some time depending on the API...\n")
+    asyncio.run(get_mods(text_file_urls))
+    downloadable_mods_urls.sort(key=lambda mod: utils.get_file_name_from_url(mod).lower())
+    mods_not_found.sort()
 
 
 def show_mod_results():
     if mods_not_found:
         print(f"Mods that could not be found: ({len(mods_not_found)})")
         for mod in mods_not_found:
-            print(f" - '{mod}'")
+            print(f" - {mod}")
         print()
 
     if mods_incorrect_version:
         print(f"Mods that did not have version '{mc_version}': ({len(mods_incorrect_version)})")
         for mod in mods_incorrect_version:
-            print(f" - '{mod}'")
+            print(f" - {mod}")
         print()
 
     if downloadable_mods_urls:
@@ -152,7 +175,6 @@ def show_mod_results():
             digit_spacing = len(str(len(downloadable_mods_urls))) - len(str(i + 1))
             number = f"{' ' * digit_spacing}{i + 1}"
 
-            # print(f" {number}. {utils.get_slug_from_url(mod)}")
             print(f" {number}. {utils.get_file_name_from_url(mod)}")
         print()
 
@@ -207,6 +229,9 @@ def get_choice_move_old_mods():
 
 def move_old_mods():
     new_folder = "Backup " + time.strftime("%Y-%m-%d %H.%M.%S", time.localtime())
+    if not os.path.exists(mod_folder):
+        pathlib.Path(mod_folder).mkdir(parents=True, exist_ok=True)
+
     os.mkdir(os.path.join(mod_folder, new_folder))
 
     print(f"Moving old mods to backup folder named '{new_folder}'...\n")
@@ -282,7 +307,6 @@ def confirm_settings():
 
 
 clear_screen()
-
 # Check if 'mods.txt' exists, if not, create it and put some comments in
 if not os.path.exists("mods.txt"):
     with open("mods.txt", "w") as f:
@@ -300,30 +324,36 @@ if not os.path.exists("mods.txt"):
     clear_screen()
 
 text_file_urls = utils.get_urls_from_file("mods.txt")
+if not text_file_urls:
+    print("No URLs found.")
+    print("Make sure the URLs are in a file named 'mods.txt', without the #")
+    print("Example:")
+    print("https://www.curseforge.com/minecraft/mc-mods/fabric-api")
+    input("\nPress Enter to exit")
+    exit()
+
 print("URLs found:")
 for url in text_file_urls:
     print(url)
 input("\nPress Enter to continue")
 clear_screen()
 
-mod_folder = get_mod_dir()
-clear_screen()
-
+# Default values
+curseforge_mod_loader_type = 4
+modrinth_mod_loader = "fabric"
+mod_folder = get_mod_dir(return_default=True)
 mc_version = get_mc_version()
-clear_screen()
-
-mod_loader = get_mc_mod_loader()
-clear_screen()
-
-choice_move_old_mods = get_choice_move_old_mods()
-clear_screen()
-
-confirm_settings()
-clear_screen()
+mod_loader = "Fabric"
+choice_move_old_mods = "yes"
 
 downloadable_mods_urls = []
 mods_not_found = []
 mods_incorrect_version = []
+
+clear_screen()
+
+confirm_settings()
+clear_screen()
 
 look_for_mods()
 clear_screen()

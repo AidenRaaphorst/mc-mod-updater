@@ -1,5 +1,6 @@
 import os
 import json
+import pathlib
 import platform
 import urllib.request
 import urllib.parse
@@ -23,6 +24,9 @@ def download_file_from_url(url: str, directory: str = None, file_name: str = Non
         with open(f"{file_name}", 'wb') as outfile:
             outfile.write(r.content)
     else:
+        if not os.path.exists(directory):
+            pathlib.Path(directory).mkdir(parents=True, exist_ok=True)
+
         with open(f"{directory}/{file_name}", 'wb') as outfile:
             outfile.write(r.content)
 
