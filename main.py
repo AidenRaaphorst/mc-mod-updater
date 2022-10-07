@@ -150,7 +150,7 @@ def look_for_mods():
 
     print("Looking for mods online, this can take some time depending on the API...\n")
     asyncio.run(get_mods(text_file_urls))
-    downloadable_mods_urls.sort(key=lambda mod: mod.split("/")[-1].lower())
+    downloadable_mods_urls.sort(key=lambda mod: utils.get_file_name_from_url(mod).lower())
     mods_not_found.sort()
 
 
@@ -158,13 +158,13 @@ def show_mod_results():
     if mods_not_found:
         print(f"Mods that could not be found: ({len(mods_not_found)})")
         for mod in mods_not_found:
-            print(f" - '{mod}'")
+            print(f" - {mod}")
         print()
 
     if mods_incorrect_version:
         print(f"Mods that did not have version '{mc_version}': ({len(mods_incorrect_version)})")
         for mod in mods_incorrect_version:
-            print(f" - '{mod}'")
+            print(f" - {mod}")
         print()
 
     if downloadable_mods_urls:
