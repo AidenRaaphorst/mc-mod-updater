@@ -122,8 +122,9 @@ def look_for_mods():
                 print(f"Found file '{file['files'][0]['filename']}'")
                 downloadable_mods_urls.append(file['files'][0]['url'])
             else:
-                print(f"Couldn't find file url for '{response.request.url}'")
-                mods_not_found.append(str(response.url).split('/')[-2])
+                slug = str(response.url).split('/')[-2]
+                print(f"Couldn't find file url for '{slug}'")
+                mods_not_found.append(slug)
 
         tasks = []
         for url in urls:
