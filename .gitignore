@@ -1,15 +1,15 @@
 .env
 *mods.txt
+
+# Python
 venv/
 __pycache__/
 
 # Pycharm
 .idea/
 
-# Testing files
+# Testing
 testing/
 output/
-MCModUpdaterV2.png
-scroll.py
-testing.py
-testing.json
+main_old.py
+untitled.ui
