@@ -223,14 +223,17 @@ def get_choice_move_old_mods():
 
     if choice_move_old_mods == "" or choice_move_old_mods == "y" or choice_move_old_mods == "yes":
         return "yes"
-    else:
-        return "no"
+
+    return "no"
 
 
 def move_old_mods():
     new_folder = "Backup " + time.strftime("%Y-%m-%d %H.%M.%S", time.localtime())
     if not os.path.exists(mod_folder):
         pathlib.Path(mod_folder).mkdir(parents=True, exist_ok=True)
+
+    if not any(f.endswith(".jar") for f in os.listdir(mod_folder)):
+        return
 
     os.mkdir(os.path.join(mod_folder, new_folder))
 
