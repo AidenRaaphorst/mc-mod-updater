@@ -190,6 +190,7 @@ def remove_mod_urls():
     print("To select multiple mods, separate them with a comma.")
     print("Example: 1, 2, 5")
     mod_numbers = input("\nSelect number(s) (leave empty if everything is correct): ").split(", ")
+    mod_numbers = [*set(mod_numbers)]
 
     if mod_numbers == ['']:
         return
