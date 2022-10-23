@@ -150,7 +150,7 @@ def look_for_mods():
         return await asyncio.gather(*tasks)
 
     print("Looking for mods online, this can take some time depending on the API...\n")
-    asyncio.run(get_mods(text_file_urls))
+    asyncio.run(get_mods(mods_txt_urls))
     downloadable_mods_urls.sort(key=lambda mod: utils.get_file_name_from_url(mod).lower())
     mods_not_found.sort()
 
@@ -310,15 +310,35 @@ def confirm_settings():
         continue
 
 
+def get_correct_mods_txt():
+    while True:
+        print("More than one mods file found, please select one:")
+        for i, file in enumerate(mods_files):
+            # Make numbers align to the right
+            digit_spacing = len(str(len(mods_files))) - len(str(i + 1))
+            number = f"{' ' * digit_spacing}{i + 1}"
+
+            print(f" {number}. {file}")
+
+        try:
+            choice = input("\nType the number next to the file you want to select: ")
+            clear_screen()
+            return mods_files[int(choice)-1]
+        except (IndexError, ValueError):
+            print("\nThat was not an option.")
+            input("Press Enter to try again")
+            clear_screen()
+
+
 clear_screen()
 # Check if 'mods.txt' exists, if not, create it and put some comments in
-if not os.path.exists("mods.txt"):
+if not any(f.endswith("mods.txt") for f in os.listdir(".")):
     with open("mods.txt", "w") as f:
         f.write("# Put the mod URLs here, without the '#'.\n")
         f.write("# Works with CurseForge and Modrinth links.\n")
         f.write("# Examples:\n")
-        f.write("# https://www.curseforge.com/minecraft/mc-mods/fabric-api")
-        f.write("# https://modrinth.com/mod/sodium")
+        f.write("# https://www.curseforge.com/minecraft/mc-mods/fabric-api\n")
+        f.write("# https://modrinth.com/mod/sodium\n")
         f.write("\n")
         f.write("\n")
 
@@ -327,17 +347,24 @@ if not os.path.exists("mods.txt"):
     input("\nPress Enter when done")
     clear_screen()
 
-text_file_urls = utils.get_urls_from_file("mods.txt")
-if not text_file_urls:
+# Check if there are multiple *mods.txt files
+mods_files = []
+for f in os.listdir("."):
+    if f.endswith("mods.txt"):
+        mods_files.append(f)
+
+mods_txt = get_correct_mods_txt() if len(mods_files) > 1 else "mods.txt"
+mods_txt_urls = utils.get_urls_from_file(mods_txt)
+if not mods_txt_urls:
     print("No URLs found.")
-    print("Make sure the URLs are in a file named 'mods.txt', without the #")
+    print(f"Make sure the URLs are in a file named '{mods_txt}', without the #")
     print("Example:")
     print("https://www.curseforge.com/minecraft/mc-mods/fabric-api")
     input("\nPress Enter to exit")
     exit()
 
 print("URLs found:")
-for url in text_file_urls:
+for url in mods_txt_urls:
     print(url)
 input("\nPress Enter to continue")
 clear_screen()
