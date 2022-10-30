@@ -1,15 +1,14 @@
 .env
 *mods.txt
+settings.json
 
 # Python
 venv/
 __pycache__/
+resources/gui/__pycache__/
 
 # Pycharm
 .idea/
 
 # Testing
 testing/
-output/
-main_old.py
-untitled.ui
