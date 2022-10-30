@@ -44,23 +44,6 @@ class ModVersionNotFoundException(Exception):
         return f"'{self.version}' -> {self.message}"
 
 
-def get_api_key():
-    if not os.path.exists('.env'):
-        utils.clear()
-        print("It appears that this is the first time you have executed this program.")
-        print("In order to download mods from CurseForge, you'll need an API key.")
-        print("To get an api key, go to this link 'https://console.curseforge.com/' and create/login into your account.")
-        print("After getting into your account, go to the tab 'API keys' on the left and copy the key.")
-        key = input("\nInsert API key here: ")
-
-        with open('.env', 'w') as f:
-            f.write(f"CURSEFORGE_API_KEY={key}")
-
-        return key
-
-    return os.getenv("CURSEFORGE_API_KEY")
-
-
 API_BASE = 'https://api.curseforge.com'
 API_VERSION = 'v1'
 API_URL = f'{API_BASE}/{API_VERSION}'
@@ -68,11 +51,24 @@ GAME_ID = 432  # Minecraft
 CATEGORY_ID = 6  # Mods
 
 
-load_dotenv()
+# load_dotenv()
+# headers = {
+#     'Accept': 'application/json',
+#     'x-api-key': get_api_key()
+# }
 headers = {
     'Accept': 'application/json',
-    'x-api-key': get_api_key()
+    'x-api-key': ''
 }
+
+
+def set_api_key(key: str):
+    global headers
+    headers['x-api-key'] = key
+
+
+def get_api_key():
+    return headers['x-api-key']
 
 
 def get_mod_from_slug(slug: str):
