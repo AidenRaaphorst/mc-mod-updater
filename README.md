@@ -1,5 +1,5 @@
 # MC Mod Updater
-Console based (soon GUI) application that can update your minecraft mods. [TODO and idea's](https://trello.com/b/aAbONtbP/mcmodupdater)
+Application that lets you update your minecraft mods in bulk. [TODO and idea's](https://trello.com/b/aAbONtbP/mcmodupdater)
 
 ## Installation
 For Windows, go to the [releases](https://github.com/AidenRaaphorst/mc-mod-updater/releases) and download the exe file.  
@@ -12,8 +12,10 @@ To get one, visit https://console.curseforge.com/, login or make an account,
 click on the tab called 'API keys' and copy the key.
 
 ## Usage
-1. Put your mod URLs in the generated `mods.txt` file.
+1. Put the URLs of the mods you want to update in the textbox.
 2. Type the version that you want to update to.
-3. Change the default settings in the confirmation screen, if needed.
-4. Confirm that the mods the program found are correct.
-5. Wait for all the mods to be downloaded.
+3. Change the default settings, if needed.
+4. Press the search button.
+5. Confirm that the mods the program found are correct.
+6. Press the download button, and wait until all the mods are downloaded.  
+This can take some time and the program might freeze, just be patient.
