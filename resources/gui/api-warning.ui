@@ -45,7 +45,7 @@
     </font>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;CurseForge links require an API key to get data from the website.&lt;br/&gt;Modrinth links don't need an API key.&lt;br/&gt;Skipping this step, means that you won't be able to use CurseForge links&lt;/p&gt;&lt;p&gt;To get an API key, visit this link: &lt;a href=&quot;https://console.curseforge.com/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://console.curseforge.com/&lt;br/&gt;&lt;/span&gt;&lt;/a&gt;1. Login or create an account&lt;br/&gt;2. Once you're logged in, go to the tab 'API keys' and copy the key&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;CurseForge links require an API key to get data from the website.&lt;br/&gt;Modrinth links don't need an API key.&lt;br/&gt;Skipping this step means that you won't be able to use CurseForge links&lt;/p&gt;&lt;p&gt;To get an API key, visit this link: &lt;a href=&quot;https://console.curseforge.com/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://console.curseforge.com/&lt;br/&gt;&lt;/span&gt;&lt;/a&gt;1. Login or create an account&lt;br/&gt;2. Once you're logged in, go to the tab 'API keys' and copy the key&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -90,6 +90,9 @@
      <width>551</width>
      <height>22</height>
     </rect>
+   </property>
+   <property name="echoMode">
+    <enum>QLineEdit::Password</enum>
    </property>
   </widget>
   <widget class="QDialogButtonBox" name="buttonBox">
