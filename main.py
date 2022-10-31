@@ -36,7 +36,8 @@ class UI(QMainWindow):
         self.api_warning_ignore = False
 
         # Load ui file
-        loadUi("resources/gui/main.ui", self)
+        # loadUi("resources/gui/main.ui", self)
+        loadUi(utils.resource_path("resources/gui/main.ui"), self)
 
         # Define widgets
         self.folder_input: QLineEdit = self.findChild(QLineEdit, "folderInput")
@@ -63,7 +64,7 @@ class UI(QMainWindow):
         # Setup for searching for mods online
         self.search_mods_button.clicked.connect(self.search_online)
         self.mods_text_edit.setPlaceholderText(
-            "Mod URL's here, example:\n"
+            "Mod URLs here, example:\n"
             "https://www.curseforge.com/minecraft/mc-mods/fabric-api\n"
             "https://modrinth.com/mod/sodium\n"
             "https://modrinth.com/mod/sodium-extra\n"
@@ -80,16 +81,21 @@ class UI(QMainWindow):
 
         # Settings
         load_dotenv()
-        if os.path.exists('settings.json'):
+        # if os.path.exists(utils.resource_path("settings.json")):
+        if os.path.exists("settings.json"):
             self.load_settings()
+        else:
+            print("Could not load settings")
 
         # Show the app
         self.show()
 
         # Load CurseForge API key, if it doesn't exist, show popup
-        if os.path.exists(".env"):
+        # if os.path.exists(".env"):
+        if os.path.exists(utils.resource_path(".env")):
             curseforge.set_api_key(os.getenv("CURSEFORGE_API_KEY"))
-        elif not os.path.exists(".env") and not self.api_warning_ignore:
+        # elif not os.path.exists(".env") and not self.api_warning_ignore:
+        elif not os.path.exists(utils.resource_path(".env")) and not self.api_warning_ignore:
             self.api_popup = ApiWarningPopup()
             self.api_popup.exec_()
 
@@ -97,7 +103,8 @@ class UI(QMainWindow):
 
             if button_text == "Save":
                 if not api_key == "":
-                    with open('.env', 'w') as f:
+                    # with open(utils.resource_path(".env"), 'w') as f:
+                    with open(".env", 'w') as f:
                         f.write(f"CURSEFORGE_API_KEY={api_key}")
                     curseforge.set_api_key(api_key)
                 self.api_warning_ignore = True
@@ -141,7 +148,8 @@ class UI(QMainWindow):
                       f"Source: this is a test"
 
         if not logo_url:
-            mod_icon = QtGui.QPixmap("resources/img/no-icon.png")
+            # mod_icon = QtGui.QPixmap("resources/img/no-icon.png")
+            mod_icon = QtGui.QPixmap(utils.resource_path("resources/img/no-icon.png"))
         else:
             data = requests.get(logo_url).content
             mod_icon = QtGui.QPixmap()
@@ -160,7 +168,12 @@ class UI(QMainWindow):
         text_font.setWeight(50)
 
         delete_icon = QtGui.QIcon()
-        delete_icon.addPixmap(QtGui.QPixmap("resources/img/trash.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        # delete_icon.addPixmap(QtGui.QPixmap("resources/img/trash.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        delete_icon.addPixmap(
+            QtGui.QPixmap(utils.resource_path("resources/img/trash.png")),
+            QtGui.QIcon.Normal,
+            QtGui.QIcon.Off
+        )
 
         self.mod_index += 1
 
@@ -405,10 +418,7 @@ class UI(QMainWindow):
                 print(f"Moving old mods to backup folder named '{new_folder}'...")
 
                 for file in os.listdir(mod_folder):
-                    if os.path.isdir(file):
-                        continue
-
-                    if not file.endswith(".jar"):
+                    if os.path.isdir(file) or not file.endswith(".jar"):
                         continue
 
                     print(f"Moving '{file}' to '{new_folder}'")
@@ -444,7 +454,8 @@ class UI(QMainWindow):
 
     def save_settings(self):
         print("Saving settings")
-        with open('settings.json', 'w') as f:
+        # with open(utils.resource_path("settings.json"), 'w') as f:
+        with open("settings.json", 'w') as f:
             data = {
                 "mods_folder": self.folder_input.text(),
                 "mc_version": self.mc_version_input.text(),
@@ -459,7 +470,8 @@ class UI(QMainWindow):
 
     def load_settings(self):
         print("Loading settings")
-        with open('settings.json') as f:
+        # with open(utils.resource_path("settings.json")) as f:
+        with open("settings.json") as f:
             data = json.load(f)
             self.folder_input.setText(data['mods_folder'])
             self.mc_version_input.setText(data['mc_version'])

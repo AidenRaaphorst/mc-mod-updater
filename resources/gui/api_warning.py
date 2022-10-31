@@ -4,6 +4,7 @@ from PyQt5.uic import loadUi
 
 import sys
 
+import utils
 
 QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # Enable highdpi scaling
 QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # Use highdpi icons
@@ -16,10 +17,12 @@ class ApiWarningPopup(QDialog):
 
         # Load ui file
         try:
-            loadUi("api-warning.ui", self)
+            # loadUi("api-warning.ui", self)
+            loadUi(utils.resource_path("api-warning.ui"), self)
         except Exception as e:
             # print(e)
-            loadUi("resources/gui/api-warning.ui", self)
+            # loadUi("resources/gui/api-warning.ui", self)
+            loadUi(utils.resource_path("resources/gui/api-warning.ui"), self)
 
         # Define widgets
         self._explanation_label = self.findChild(QLabel, "explanationLabel")

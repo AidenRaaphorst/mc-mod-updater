@@ -4,6 +4,8 @@ from PyQt5.uic import loadUi
 
 import sys
 
+import utils
+
 QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # Enable highdpi scaling
 QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # Use highdpi icons
 QApplication.setAttribute(QtCore.Qt.AA_DisableWindowContextHelpButton, True)  # Disable Help button
@@ -15,10 +17,12 @@ class FailedModsPopup(QDialog):
 
         # Load ui file
         try:
-            loadUi("failed-mods.ui", self)
+            # loadUi("failed-mods.ui", self)
+            loadUi(utils.resource_path("failed-mods.ui"), self)
         except Exception as e:
             # print(e)
-            loadUi("resources/gui/failed-mods.ui", self)
+            # loadUi("resources/gui/failed-mods.ui", self)
+            loadUi(utils.resource_path("resources/gui/failed-mods.ui"), self)
 
         # Define widgets
         self._mods_label = self.findChild(QLabel, "modsLabel")
@@ -28,8 +32,6 @@ class FailedModsPopup(QDialog):
 
     def set_mod_urls(self, mod_urls: list):
         mod_urls = map(lambda url: f'<a href="{url}">{url}</a>', mod_urls)
-        # for url in mod_urls:
-        #     url = f'<a href="{url}">{url}</a>'
 
         self._mods_label.setText("<br>".join(mod_urls))
 
