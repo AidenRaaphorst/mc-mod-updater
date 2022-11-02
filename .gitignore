@@ -1,6 +1,4 @@
-.env
-*mods.txt
-settings.json
+config/
 
 # Python
 venv/
@@ -12,3 +10,4 @@ resources/gui/__pycache__/
 
 # Testing
 testing/
+*mods.txt
