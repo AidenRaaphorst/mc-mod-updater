@@ -1,0 +1,870 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1050</width>
+    <height>700</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1050</width>
+    <height>700</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1050</width>
+    <height>700</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>MC Mod Updater</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../icon/mc_mod_updater_icon.ico</normaloff>../icon/mc_mod_updater_icon.ico</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QMainWindow,
+#centralwidget {
+	background-color: #1a1a1a;
+}
+
+QMenuBar {
+	background-color: #2a2a2a;
+	color: #dce4ee;
+}</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QFrame" name="modsFrame">
+    <property name="geometry">
+     <rect>
+      <x>530</x>
+      <y>10</y>
+      <width>511</width>
+      <height>681</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">#modsFrame {
+	background-color: #2a2a2a;
+	border-radius: 15px;
+}
+
+
+/* Label */
+QFrame QLabel {
+	color: #DCE4EE;
+}
+
+
+/* Frame */
+QFrame,
+#scrollAreaWidgetContents {
+	background-color: #2a2a2a;
+}
+
+
+/* modWidget */
+#scrollAreaWidgetContents &gt; QWidget {
+	background-color: rgba(255, 255, 255, 0.1);
+	border-radius: 10px;
+}
+
+
+/* modWidget Label */
+#scrollAreaWidgetContents &gt; QWidget QLabel {
+	background-color: rgba(255, 255, 255, 0.0);
+}
+
+
+/* modWidget PushButton */
+#scrollAreaWidgetContents &gt; QWidget QPushButton {
+	background-color: #9e2c24;
+	border-radius: 5px;
+}
+#scrollAreaWidgetContents &gt; QWidget QPushButton:pressed {
+	background-color: #6b1d18;
+}
+
+
+/* ScrollArea */
+QScrollArea {
+	background-color: #2a2a2a;
+	border-radius: 15px;
+}
+/* VERTICAL SCROLLBAR */
+ QScrollBar:vertical {
+	border: none;
+    background: #2a2a2a;
+    width: 10px;
+ }
+/*  HANDLE BAR VERTICAL */
+QScrollBar::handle:vertical {	
+	background: #DCE4EE;
+	border-radius: 5px;
+}
+QScrollBar::handle:vertical:pressed {	
+	background-color: #acb3bb;
+}
+/* BTN TOP - SCROLLBAR */
+QScrollBar::sub-line:vertical, 
+QScrollBar::add-line:vertical {
+	height: 0px;
+}
+/* RESET ARROW */
+QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical,
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+	background: none;
+}
+/* HORIZONTAL SCROLLBAR */
+QScrollBar:horizontal {
+	border: none;
+    background: #3f3f3f;
+    height: 10px;
+	border-radius: 0px;
+}
+/*  HANDLE BAR HORIZONTAL */
+QScrollBar::handle:horizontal {
+	background: #DCE4EE;
+	border-radius: 5px;
+}
+QScrollBar::handle:horizontal:pressed {	
+	background-color: #acb3bb;
+}
+/* BTN TOP - SCROLLBAR */
+QScrollBar::sub-line:horizontal, 
+QScrollBar::add-line:horizontal {
+	width: 0px;
+}
+/* RESET ARROW */
+QScrollBar::up-arrow:horizontal, QScrollBar::down-arrow:horizontal,
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+	background: none;
+}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QLabel" name="modsFoundOnlineLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>191</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Mods Found Online:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>36</y>
+       <width>491</width>
+       <height>631</height>
+      </rect>
+     </property>
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>491</width>
+        <height>631</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>10</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item alignment="Qt::AlignTop">
+        <widget class="QWidget" name="modWidgetExample" native="true">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>80</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>470</width>
+           <height>80</height>
+          </size>
+         </property>
+         <widget class="QLabel" name="modIcon">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>10</y>
+            <width>61</width>
+            <height>61</height>
+           </rect>
+          </property>
+          <property name="pixmap">
+           <pixmap>../img/sodium-icon.png</pixmap>
+          </property>
+          <property name="scaledContents">
+           <bool>true</bool>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+         <widget class="QLabel" name="modName">
+          <property name="geometry">
+           <rect>
+            <x>80</x>
+            <y>10</y>
+            <width>291</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <family>Segoe UI</family>
+            <pointsize>12</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Sodium</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="modDetails">
+          <property name="geometry">
+           <rect>
+            <x>80</x>
+            <y>30</y>
+            <width>321</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <family>Segoe UI</family>
+            <pointsize>9</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>File: sodium-fabric-mc1.19-0.4.2+build.16.jar
+Source: CurseForge</string>
+          </property>
+          <property name="textFormat">
+           <enum>Qt::PlainText</enum>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="deleteButton">
+          <property name="geometry">
+           <rect>
+            <x>410</x>
+            <y>20</y>
+            <width>41</width>
+            <height>41</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../img/trash.png</normaloff>../img/trash.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>32</width>
+            <height>32</height>
+           </size>
+          </property>
+         </widget>
+         <widget class="QLabel" name="fileUrl">
+          <property name="geometry">
+           <rect>
+            <x>80</x>
+            <y>60</y>
+            <width>321</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>hidden file url</string>
+          </property>
+         </widget>
+         <zorder>fileUrl</zorder>
+         <zorder>modIcon</zorder>
+         <zorder>modName</zorder>
+         <zorder>deleteButton</zorder>
+         <zorder>modDetails</zorder>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QFrame" name="settingsFrame">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>511</width>
+      <height>681</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame {
+	background-color: #2a2a2a;
+	border-radius: 15px;
+}
+
+
+/* Label */
+QLabel {
+	color: #DCE4EE
+}
+
+
+/* PushButton */
+QPushButton {
+	color: #DCE4EE;
+	background-color: #2f5ea1;
+	border-radius: 8px;
+}
+QPushButton:pressed {
+	color: #DCE4EE;
+	background-color: #20406d;
+}
+#stopButton {
+	background-color: #9e2c24;
+}
+
+#stopButton:pressed {
+	background-color: #6b1d18;
+}
+
+
+/* LineEdit */
+QLineEdit {
+	color: #DCE4EE;
+	background-color: rgba(255, 255, 255, 0.1);
+	border-radius: 3px;
+	border: 1px solid #DCE4EE;
+}
+
+
+/* ComboBox */
+QComboBox {
+	border-radius: 0px;
+	color: #DCE4EE;
+	background-color: rgba(255, 255, 255, 0.1);
+}
+QComboBox QListView {
+	padding: 5px;
+	color: #DCE4EE;
+	background-color: rgba(255, 255, 255, 0.1);
+	border-radius: 0px;
+	outline: 0px;
+}
+
+
+/* CheckBox */
+QCheckBox {
+	color: #DCE4EE;
+}
+
+
+/* PlainTextEdit */
+QPlainTextEdit {
+	padding: 3px;
+	border: 1px solid #DCE4EE;
+	border-radius: 10px;
+	color: #DCE4EE;
+	background-color: rgba(255, 255, 255, 0.1);
+}
+/* VERTICAL SCROLLBAR */
+QScrollBar:vertical {
+	border: none;
+    background: #3f3f3f;
+    width: 10px;
+	border-radius: 0px;
+ }
+/*  HANDLE BAR VERTICAL */
+QScrollBar::handle:vertical {	
+	background: #DCE4EE;
+	border-radius: 5px;
+}
+QScrollBar::handle:vertical:pressed {	
+	background-color: #acb3bb;
+}
+/* BTN TOP - SCROLLBAR */
+QScrollBar::sub-line:vertical, 
+QScrollBar::add-line:vertical {
+	height: 0px;
+}
+/* RESET ARROW */
+QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical,
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+	background: none;
+}
+/* HORIZONTAL SCROLLBAR */
+QScrollBar:horizontal {
+	border: none;
+    background: #3f3f3f;
+    height: 10px;
+	border-radius: 0px;
+}
+/*  HANDLE BAR HORIZONTAL */
+QScrollBar::handle:horizontal {
+	background: #DCE4EE;
+	border-radius: 5px;
+}
+QScrollBar::handle:horizontal:pressed {	
+	background-color: #acb3bb;
+}
+/* BTN TOP - SCROLLBAR */
+QScrollBar::sub-line:horizontal, 
+QScrollBar::add-line:horizontal {
+	width: 0px;
+}
+/* RESET ARROW */
+QScrollBar::up-arrow:horizontal, QScrollBar::down-arrow:horizontal,
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+	background: none;
+}
+
+
+/* ProgressBar */
+QProgressBar {
+    border: 2px solid #dce4ee;
+	padding: 3px;
+    border-radius: 3px;
+	color: #dce4ee;
+    background-color: #2a2a2a;
+}
+QProgressBar::chunk {
+	background-color: green;
+}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QLabel" name="folderLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>321</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Your Mods Folder:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="folderInput">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>32</y>
+       <width>361</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI</family>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="placeholderText">
+      <string>Minecraft mods folder here</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="urlsLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>280</y>
+       <width>471</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Mods URLs to look for:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QPlainTextEdit" name="modsTextEdit">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>310</y>
+       <width>491</width>
+       <height>251</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI</family>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="lineWrapMode">
+      <enum>QPlainTextEdit::NoWrap</enum>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="versionInput">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>181</width>
+       <height>33</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI</family>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="maxLength">
+      <number>8</number>
+     </property>
+     <property name="placeholderText">
+      <string>Minecraft version here</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="versionLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>78</y>
+       <width>181</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Minecraft Version:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="searchModsButton">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>580</y>
+       <width>191</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI</family>
+       <pointsize>10</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Search Mods</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="downloadModsButton">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>580</y>
+       <width>191</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI</family>
+       <pointsize>10</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Download Mods</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="modloaderOptions">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>100</y>
+       <width>181</width>
+       <height>34</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI</family>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="currentIndex">
+      <number>1</number>
+     </property>
+     <item>
+      <property name="text">
+       <string>Any</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Fabric</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Forge</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Quilt</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>LiteLoader</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Cauldron</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="modloaderLabel">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>78</y>
+       <width>181</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Modloader:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="backupCheckBox">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>180</y>
+       <width>151</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI</family>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="toolTip">
+      <string>Move old mods to a new backup folder</string>
+     </property>
+     <property name="text">
+      <string>Backup old mods</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="extraOptionsLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>149</y>
+       <width>171</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Extra options:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="folderButton">
+     <property name="geometry">
+      <rect>
+       <x>380</x>
+       <y>30</y>
+       <width>121</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI</family>
+       <pointsize>10</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Change</string>
+     </property>
+    </widget>
+    <widget class="QProgressBar" name="progressBar">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>640</y>
+       <width>231</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="minimum">
+      <number>0</number>
+     </property>
+     <property name="value">
+      <number>50</number>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="format">
+      <string>%p%</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <action name="actionadsad">
+   <property name="text">
+    <string>adsad</string>
+   </property>
+  </action>
+  <action name="actionadasd">
+   <property name="text">
+    <string>adasd</string>
+   </property>
+  </action>
+ </widget>
+ <tabstops>
+  <tabstop>folderInput</tabstop>
+  <tabstop>folderButton</tabstop>
+  <tabstop>versionInput</tabstop>
+  <tabstop>modloaderOptions</tabstop>
+  <tabstop>backupCheckBox</tabstop>
+  <tabstop>modsTextEdit</tabstop>
+  <tabstop>searchModsButton</tabstop>
+  <tabstop>downloadModsButton</tabstop>
+  <tabstop>scrollArea</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
