@@ -1,11 +1,7 @@
 import json
-import os
 import typing
 import httpx
 import requests
-from dotenv import load_dotenv  # If not installed, run: pip install python-dotenv
-
-import utils
 
 
 class ModNotFoundException(Exception):
@@ -51,11 +47,6 @@ GAME_ID = 432  # Minecraft
 CATEGORY_ID = 6  # Mods
 
 
-# load_dotenv()
-# headers = {
-#     'Accept': 'application/json',
-#     'x-api-key': get_api_key()
-# }
 headers = {
     'Accept': 'application/json',
     'x-api-key': ''
