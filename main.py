@@ -2,14 +2,15 @@ import os
 import sys
 import time
 import json
+import httpx
 import shutil
 import asyncio
+import logging
 import pathlib
 import platform
+import requests
 from dotenv import load_dotenv
 
-import httpx
-import requests
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5.uic import loadUi
@@ -18,8 +19,8 @@ from PyQt5.QtWidgets import *
 import utils
 import modrinth
 import curseforge
-from resources.gui.failed_mods import FailedModsPopup
 from resources.gui.api_warning import ApiWarningPopup
+from resources.gui.failed_mods import FailedModsPopup
 
 
 QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # Enable highdpi scaling
@@ -30,13 +31,17 @@ class UI(QMainWindow):
     def __init__(self):
         super(UI, self).__init__()
 
+        self.ENV_LOCATION = "config/.env"
+        self.SETTINGS_LOCATION = "config/settings.json"
+        self.LOG_LOCATION = "config/log.log"
+
+        self.load_logging()
         self.mod_index = 0
         self.downloadable_mod_widgets: list[QWidget] = []
         self.failed_mods: list[str] = []
         self.api_warning_ignore = False
 
         # Load ui file
-        # loadUi("resources/gui/main.ui", self)
         loadUi(utils.resource_path("resources/gui/main.ui"), self)
 
         # Define widgets
@@ -80,36 +85,14 @@ class UI(QMainWindow):
         self.vertical_layout.setAlignment(QtCore.Qt.AlignTop)
 
         # Settings
-        load_dotenv()
-        # if os.path.exists(utils.resource_path("settings.json")):
-        if os.path.exists("settings.json"):
+        if os.path.exists(self.SETTINGS_LOCATION):
             self.load_settings()
         else:
-            print("Could not load settings")
+            logging.warning("Could not load settings\n")
 
-        # Show the app
+        # Finally
         self.show()
-
-        # Load CurseForge API key, if it doesn't exist, show popup
-        # if os.path.exists(".env"):
-        if os.path.exists(utils.resource_path(".env")):
-            curseforge.set_api_key(os.getenv("CURSEFORGE_API_KEY"))
-        # elif not os.path.exists(".env") and not self.api_warning_ignore:
-        elif not os.path.exists(utils.resource_path(".env")) and not self.api_warning_ignore:
-            self.api_popup = ApiWarningPopup()
-            self.api_popup.exec_()
-
-            api_key, button_text = self.api_popup.get_response()
-
-            if button_text == "Save":
-                if not api_key == "":
-                    # with open(utils.resource_path(".env"), 'w') as f:
-                    with open(".env", 'w') as f:
-                        f.write(f"CURSEFORGE_API_KEY={api_key}")
-                    curseforge.set_api_key(api_key)
-                self.api_warning_ignore = True
-            elif button_text == "Ignore":
-                self.api_warning_ignore = True
+        self.load_env()
 
     def get_folder_location(self, return_default=False):
         if return_default:
@@ -133,10 +116,10 @@ class UI(QMainWindow):
         if directory == "":
             directory = previous
 
-        print(f"\nChanged directory from '{previous}' to '{directory}'")
         self.folder_input.setText(directory)
-    
-    def make_mod_widget(self, name: str = None, file_url: str = None, details: str = None, logo_url: str=None):
+        logging.info(f"Changed directory from '{previous}' to '{directory}'\n")
+
+    def make_mod_widget(self, name: str = None, file_url: str = None, details: str = None, logo_url: str = None):
         if not name:
             name = "TESTING"
 
@@ -148,7 +131,6 @@ class UI(QMainWindow):
                       f"Source: this is a test"
 
         if not logo_url:
-            # mod_icon = QtGui.QPixmap("resources/img/no-icon.png")
             mod_icon = QtGui.QPixmap(utils.resource_path("resources/img/no-icon.png"))
         else:
             data = requests.get(logo_url).content
@@ -168,7 +150,6 @@ class UI(QMainWindow):
         text_font.setWeight(50)
 
         delete_icon = QtGui.QIcon()
-        # delete_icon.addPixmap(QtGui.QPixmap("resources/img/trash.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         delete_icon.addPixmap(
             QtGui.QPixmap(utils.resource_path("resources/img/trash.png")),
             QtGui.QIcon.Normal,
@@ -221,12 +202,10 @@ class UI(QMainWindow):
         delete_button.setIcon(delete_icon)
         delete_button.setIconSize(QtCore.QSize(32, 32))
 
-        # Add to temp list
-        # self.downloadable_mod_widgets.append(mod_widget)
         return mod_widget
 
     def search_online(self):
-        print("\nSearching for mods...")
+        logging.info("Searching for mods...")
 
         # Reset arrays and remove old mod results
         self.downloadable_mod_widgets = []
@@ -265,7 +244,7 @@ class UI(QMainWindow):
                 slug = url.split("&slug=")[1]
 
                 if mod is None:
-                    print(f"Couldn't find mod '{slug}'")
+                    logging.error(f"Couldn't find mod '{slug}'")
                     self.failed_mods.append(f"c {slug}")
                     self.progress_bar.setValue(self.progress_bar.value() + 1)
                     return
@@ -277,19 +256,18 @@ class UI(QMainWindow):
                 )
 
                 if file is None:
-                    print(f"Couldn't find correct file for '{slug}'")
-                    # print(f"Couldn't find file URL for '{slug}'")
+                    logging.error(f"Couldn't find correct file for '{slug}'")
                     self.failed_mods.append(f"c {slug}")
                     self.progress_bar.setValue(self.progress_bar.value() + 1)
                     return
 
                 if file['downloadUrl'] is None:
-                    print(f"Couldn't find file URL for '{slug}'")
+                    logging.error(f"Couldn't find file URL for '{slug}'")
                     self.failed_mods.append(f"c {slug}")
                     self.progress_bar.setValue(self.progress_bar.value() + 1)
                     return
 
-                print(f"Found file for '{slug}'")
+                logging.info(f"Found file for '{slug}'")
                 mod_name = mod['name']
                 mod_logo_url = mod['logo']['thumbnailUrl']
                 file_url = file['downloadUrl']
@@ -308,7 +286,7 @@ class UI(QMainWindow):
                 slug = url.split('/')[-1]
 
                 if mod is None:
-                    print(f"Couldn't find mod '{slug}'")
+                    logging.error(f"Couldn't find mod '{slug}'")
                     self.failed_mods.append(f"m {slug}")
                     self.progress_bar.setValue(self.progress_bar.value() + 1)
                     return
@@ -320,13 +298,12 @@ class UI(QMainWindow):
                 )
 
                 if file is None:
-                    print(f"Couldn't find correct file for '{slug}'")
-                    # print(f"Couldn't find file URL for '{slug}'")
+                    logging.error(f"Couldn't find correct file for '{slug}'")
                     self.failed_mods.append(f"m {slug}")
                     self.progress_bar.setValue(self.progress_bar.value() + 1)
                     return
 
-                print(f"Found file '{file['files'][0]['filename']}'")
+                logging.info(f"Found file for '{slug}'")
                 mod_name = mod['title']
                 mod_logo_url = mod['icon_url']
                 file_url = file['files'][0]['url']
@@ -344,36 +321,39 @@ class UI(QMainWindow):
             for url in urls:
                 slug = utils.get_slug_from_url(url)
                 if "curseforge.com/minecraft/mc-mods/" in url:
-                    if curseforge.get_api_key() == "":
-                        print(f"Cannot search for '{url}' because API key is not set")
+                    if not curseforge.get_api_key():
+                        logging.error(f"Cannot search for '{url}' because API key is not set")
                         self.failed_mods.append(f"c {slug}")
                         continue
 
-                    print(f"Looking for '{slug}' using Curseforge")
+                    logging.info(f"Looking for '{slug}' using Curseforge")
                     tasks.append(curseforge.get_mod_from_slug_async(
                         slug=slug,
                         after_response_funcs=[handle_response_curseforge]
                     ))
                 elif "modrinth.com/mod/" in url:
-                    print(f"Looking for '{slug}' using Modrinth")
+                    logging.info(f"Looking for '{slug}' using Modrinth")
                     tasks.append(modrinth.get_mod_from_slug_async(
                         mod_slug=slug,
                         after_response_funcs=[handle_response_modrinth]
                     ))
                 else:
-                    print(f"URL '{url}' is not supported")
+                    logging.error(f"URL '{url}' is not supported")
                     self.failed_mods.append(url)
 
             return await asyncio.gather(*tasks)
+
         asyncio.run(get_mods(mod_urls))
         self.progress_bar.hide()
 
+        # Alphabetically add widgets to layout
         self.downloadable_mod_widgets.sort(key=lambda widget: widget.findChild(QLabel, "modName").text())
         for widget in self.downloadable_mod_widgets:
             self.vertical_layout.addWidget(widget, alignment=QtCore.Qt.AlignTop)
 
+        # Popup for failed mods
         if self.failed_mods:
-            print("Creating popup showing what mods failed")
+            logging.info("Creating popup showing what mods failed")
             urls: list[str] = []
             for mod in self.failed_mods:
                 mod: str = mod
@@ -396,37 +376,37 @@ class UI(QMainWindow):
             self.failed_mods_popup.set_mod_urls(urls)
             self.failed_mods_popup.exec_()
 
-        print("Done")
+        logging.info("Done\n")
 
     def download_mods(self):
-        print("\nDownloading mods...")
+        logging.info("Downloading mods...")
         make_backup: bool = self.backup_mods_checkbox.isChecked()
         mod_folder = self.folder_input.text()
 
         if not make_backup:
-            print("Not making backup, because checkbox is not checked")
+            logging.info("Not making backup, because checkbox is not checked")
         else:
-            print("Making backup")
+            logging.info("Making backup")
             new_folder = "Backup " + time.strftime("%Y-%m-%d %H.%M.%S", time.localtime())
             if not os.path.exists(mod_folder):
-                print("Mods folder not found, creating it")
+                logging.warning("Mods folder not found, creating it")
                 pathlib.Path(mod_folder).mkdir(parents=True, exist_ok=True)
 
             if any(f.endswith(".jar") for f in os.listdir(mod_folder)):
                 os.mkdir(os.path.join(mod_folder, new_folder))
 
-                print(f"Moving old mods to backup folder named '{new_folder}'...")
+                logging.info(f"Moving old mods to backup folder named '{new_folder}'...")
 
                 for file in os.listdir(mod_folder):
                     if os.path.isdir(file) or not file.endswith(".jar"):
                         continue
 
-                    print(f"Moving '{file}' to '{new_folder}'")
+                    logging.info(f"Moving '{file}' to '{new_folder}'")
 
                     src_path = fr"{mod_folder}\{file}"
                     dst_path = fr"{mod_folder}\{new_folder}\{file}"
                     shutil.move(src_path, dst_path)
-            print("Done moving old mods")
+            logging.info("Done moving old mods")
 
         mod_widgets = self.scroll_area_widget_contents.findChildren(QWidget, "modWidget")
         mod_widgets.sort(key=lambda widget: widget.findChild(QLabel, "modName").text())
@@ -436,12 +416,14 @@ class UI(QMainWindow):
         for i, widget in enumerate(mod_widgets):
             mod_url = widget.findChild(QLabel, 'modURL').text()
             file_name = utils.get_file_name_from_url(mod_url)
-            print(f"Downloading '{file_name}'")
+
+            logging.info(f"Downloading '{file_name}'")
+
             utils.download_file_from_url(url=mod_url, directory=mod_folder)
             self.progress_bar.setValue(self.progress_bar.value() + 1)
 
         self.progress_bar.hide()
-        print("Done")
+        logging.info("Done\n")
 
     def debug_create_mod(self):
         widget = self.make_mod_widget()
@@ -450,12 +432,12 @@ class UI(QMainWindow):
     def debug_failed_mods_popup(self):
         self.popup = ApiWarningPopup()
         self.popup.exec_()
-        # print(self.popup.get_api_input())
 
     def save_settings(self):
-        print("Saving settings")
-        # with open(utils.resource_path("settings.json"), 'w') as f:
-        with open("settings.json", 'w') as f:
+        logging.info("Saving settings")
+        settings_dir = self.SETTINGS_LOCATION.removesuffix(self.SETTINGS_LOCATION.split("/")[-1])
+        os.makedirs(settings_dir, exist_ok=True)
+        with open(self.SETTINGS_LOCATION, 'w') as f:
             data = {
                 "mods_folder": self.folder_input.text(),
                 "mc_version": self.mc_version_input.text(),
@@ -466,21 +448,73 @@ class UI(QMainWindow):
             }
             json.dump(data, f, indent=4)
 
-        print("Done")
+        logging.info("Done\n")
 
     def load_settings(self):
-        print("Loading settings")
-        # with open(utils.resource_path("settings.json")) as f:
-        with open("settings.json") as f:
-            data = json.load(f)
-            self.folder_input.setText(data['mods_folder'])
-            self.mc_version_input.setText(data['mc_version'])
-            self.modloader_input.setCurrentText(data['modloader'])
-            self.backup_mods_checkbox.setChecked(data['backup_mods'])
-            self.api_warning_ignore = data['api_warning_ignore']
-            self.mods_text_edit.setPlainText("\n".join(data['mod_urls']))
+        logging.info("Loading settings")
+        with open(self.SETTINGS_LOCATION) as f:
+            data: dict = json.load(f)
+            self.folder_input.setText(data.get("mods_folder", self.get_folder_location(return_default=True)))
+            self.backup_mods_checkbox.setChecked(data.get("backup_mods", True))
+            self.mc_version_input.setText(data.get("mc_version", ""))
+            self.modloader_input.setCurrentText(data.get('modloader', "Fabric"))
+            self.api_warning_ignore = data.get('api_warning_ignore', False)
+            self.mods_text_edit.setPlainText("\n".join(data.get('mod_urls', [])))
 
-        print("Done")
+        logging.info("Done\n")
+
+    def load_env(self):
+        logging.info("Loading env")
+
+        if self.api_warning_ignore:
+            logging.info("API key warning ignored, not loading env")
+
+        # env_exists = os.path.exists(utils.resource_path(self.ENV_LOCATION))
+        env_exists = os.path.exists(self.ENV_LOCATION)
+
+        if env_exists:
+            load_dotenv(dotenv_path=self.ENV_LOCATION)
+            curseforge.set_api_key(os.getenv("CURSEFORGE_API_KEY"))
+        elif not env_exists and not self.api_warning_ignore:
+            logging.warning("Env not found, showing popup")
+            self.api_popup = ApiWarningPopup()
+            self.api_popup.exec_()
+            api_key, button_text = self.api_popup.get_response()
+
+            if button_text == "Save":
+                logging.info("User clicked the save button")
+                if not api_key:
+                    logging.warning("No API key found")
+                    return
+
+                env_dir = self.ENV_LOCATION.removesuffix(self.ENV_LOCATION.split("/")[-1])
+                os.makedirs(env_dir, exist_ok=True)
+                with open(self.ENV_LOCATION, 'w') as f:
+                    f.write(f"CURSEFORGE_API_KEY={api_key}")
+                curseforge.set_api_key(api_key)
+                logging.info("Saved API key")
+            elif button_text == "Ignore":
+                logging.info("User clicked the ignore button")
+                self.api_warning_ignore = True
+            elif button_text == "Close":
+                logging.info("User clicked the close button")
+
+        logging.info("Done\n")
+
+    def load_logging(self):
+        logging_dir = self.LOG_LOCATION.removesuffix(self.LOG_LOCATION.split("/")[-1])
+        os.makedirs(logging_dir, exist_ok=True)
+
+        logging.basicConfig(
+            level=logging.INFO,
+            style="{", datefmt="%H:%M:%S",
+            format="[{asctime:s}.{msecs:0>3.0f} - {levelname: >8s}]: {message:s}",
+            handlers=[
+                logging.FileHandler(filename=self.LOG_LOCATION, mode="w"),
+                logging.StreamHandler(sys.stdout)
+            ]
+        )
+        logging.info("Loaded logger\n")
 
     def closeEvent(self, *args, **kwargs):
         self.save_settings()
