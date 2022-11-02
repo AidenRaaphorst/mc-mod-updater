@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>API Warning</string>
+   <string>API Key Warning</string>
   </property>
   <property name="windowIcon">
    <iconset>
