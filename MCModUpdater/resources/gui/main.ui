@@ -239,7 +239,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
            </rect>
           </property>
           <property name="pixmap">
-           <pixmap>../img/sodium-icon.png</pixmap>
+           <pixmap>../img/no-icon.png</pixmap>
           </property>
           <property name="scaledContents">
            <bool>true</bool>
@@ -266,7 +266,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
            </font>
           </property>
           <property name="text">
-           <string>Sodium</string>
+           <string>Mod name</string>
           </property>
          </widget>
          <widget class="QLabel" name="modDetails">
@@ -287,8 +287,8 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
            </font>
           </property>
           <property name="text">
-           <string>File: sodium-fabric-mc1.19-0.4.2+build.16.jar
-Source: CurseForge</string>
+           <string>File: this-is-a-test.jar
+Source: Something</string>
           </property>
           <property name="textFormat">
            <enum>Qt::PlainText</enum>

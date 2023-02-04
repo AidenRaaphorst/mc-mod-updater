@@ -1,18 +1,9 @@
 import os
 import json
 import pathlib
-import platform
-import sys
 import urllib.request
 import urllib.parse
 import requests
-
-
-def clear():
-    if platform.system() == "Windows":
-        os.system('cls')
-    else:
-        os.system('clear')
 
 
 def download_file_from_url(url: str, directory: str = None, file_name: str = None):
@@ -32,15 +23,6 @@ def download_file_from_url(url: str, directory: str = None, file_name: str = Non
             outfile.write(r.content)
 
 
-def get_urls_from_file(file: str):
-    urls = []
-    with open(file) as f:
-        for line in f:
-            if not line == '\n' and not line.startswith('#'):
-                urls.append(line.strip())
-    return urls
-
-
 def get_slug_from_url(url: str):
     return url.strip().split('/')[-1]
 
@@ -52,14 +34,3 @@ def get_file_name_from_url(url: str):
 
 def format_json(json_string: str):
     return json.dumps(json_string, indent=4, sort_keys=True)
-
-
-def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
