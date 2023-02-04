@@ -4,7 +4,7 @@ from PyQt5.uic import loadUi
 
 import sys
 
-import utils
+from MCModUpdater.resources import constants
 
 QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # Enable highdpi scaling
 QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # Use highdpi icons
@@ -15,14 +15,7 @@ class ApiWarningPopup(QDialog):
     def __init__(self):
         super(ApiWarningPopup, self).__init__()
 
-        # Load ui file
-        try:
-            # loadUi("api-warning.ui", self)
-            loadUi(utils.resource_path("api-warning.ui"), self)
-        except Exception as e:
-            # print(e)
-            # loadUi("resources/gui/api-warning.ui", self)
-            loadUi(utils.resource_path("resources/gui/api-warning.ui"), self)
+        loadUi(fr"{constants.RESOURCES_PATH}\gui\api_warning.ui", self)
 
         # Define widgets
         self._explanation_label = self.findChild(QLabel, "explanationLabel")
@@ -37,15 +30,12 @@ class ApiWarningPopup(QDialog):
         self._explanation_label.setOpenExternalLinks(True)
 
     def _save(self):
-        # print("save")
         self._pressed_button_text = "Save"
 
     def _ignore(self):
-        # print("ignore")
         self._pressed_button_text = "Ignore"
 
     def _close(self):
-        # print("close")
         self._pressed_button_text = "Close"
 
     def get_response(self):
