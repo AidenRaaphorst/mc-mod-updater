@@ -34,6 +34,7 @@ class UI(QMainWindow):
         self.mod_index = 0
         self.downloadable_mod_widgets: list[QWidget] = []
         self.failed_mods: list[str] = []
+        self.interactive_widgets: list[QWidget] = []
         self.api_warning_ignore = False
 
         # Load ui file
@@ -84,6 +85,16 @@ class UI(QMainWindow):
             self.load_settings()
         else:
             logging.warning("Could not load settings\n")
+
+        # Add interactive widgets to list
+        self.interactive_widgets.append(self.folder_input)
+        self.interactive_widgets.append(self.folder_button)
+        self.interactive_widgets.append(self.mc_version_input)
+        self.interactive_widgets.append(self.modloader_input)
+        self.interactive_widgets.append(self.backup_mods_checkbox)
+        self.interactive_widgets.append(self.mods_text_edit)
+        self.interactive_widgets.append(self.search_mods_button)
+        self.interactive_widgets.append(self.download_mods_button)
 
         # Finally
         self.show()
@@ -193,7 +204,7 @@ class UI(QMainWindow):
         delete_button = QPushButton(mod_widget)
         delete_button.setObjectName("deleteButton")
         delete_button.setGeometry(QtCore.QRect(410, 20, 41, 41))
-        delete_button.clicked.connect(lambda: mod_widget.deleteLater())
+        delete_button.clicked.connect(mod_widget.deleteLater)
         delete_button.setIcon(delete_icon)
         delete_button.setIconSize(QtCore.QSize(32, 32))
 
@@ -236,10 +247,18 @@ class UI(QMainWindow):
         self.progress_bar.setMaximum(len(mod_urls))
         self.progress_bar.show()
 
-        def add_widgets_to_ui():
+        def when_done():
+            # Add widgets to UI
             self.downloadable_mod_widgets.sort(key=lambda widget: widget.findChild(QLabel, "modName").text())
             for widget in self.downloadable_mod_widgets:
                 self.vertical_layout.addWidget(widget, alignment=QtCore.Qt.AlignTop)
+
+            self.progress_bar.hide()
+            self.enable_interactive_widgets(True, self.search_mods_button)
+
+        def when_cancelled():
+            self.progress_bar.hide()
+            self.enable_interactive_widgets(True, self.search_mods_button)
 
         # Popup for failed mods
         def show_failed_mods():
@@ -254,14 +273,16 @@ class UI(QMainWindow):
 
             logging.info("Done\n")
 
+        self.enable_interactive_widgets(False, self.search_mods_button)
+
         # Run SearchThread
         self.thread = SearchThread(mod_urls, mc_version, curseforge_mod_loader_type, modrinth_mod_loader)
         self.thread.update_progress.connect(lambda: self.progress_bar.setValue(self.progress_bar.value() + 1))
-        self.thread.hide_progress.connect(lambda: self.progress_bar.hide())
         self.thread.make_and_append_mod_widget.connect(self.make_mod_widget)
         self.thread.append_failed_mod.connect(self.failed_mods.append)
         self.thread.show_failed_mods.connect(show_failed_mods)
-        self.thread.done.connect(add_widgets_to_ui)
+        self.thread.done.connect(when_done)
+        self.thread.cancelled.connect(when_cancelled)
         self.thread.start()
 
     def download_mods(self):
@@ -300,15 +321,55 @@ class UI(QMainWindow):
         self.progress_bar.setMaximum(len(mod_widgets))
         self.progress_bar.show()
 
+        def when_done():
+            self.progress_bar.hide()
+            self.enable_interactive_widgets(True, self.download_mods_button)
+
+        def when_cancelled():
+            self.progress_bar.hide()
+            self.enable_interactive_widgets(True, self.download_mods_button)
+
+        self.enable_interactive_widgets(False, self.download_mods_button)
+
         # Run DownloadThread
         self.thread = DownloadThread(mod_widgets, mod_folder)
         self.thread.update_progress.connect(lambda: self.progress_bar.setValue(self.progress_bar.value() + 1))
-        self.thread.hide_progress.connect(lambda: self.progress_bar.hide())
+        self.thread.done.connect(when_done)
+        self.thread.cancelled.connect(when_cancelled)
         self.thread.start()
 
     def debug_create_mod(self):
         widget = self.make_mod_widget()
         self.vertical_layout.addWidget(widget, alignment=QtCore.Qt.AlignTop)
+
+    def enable_interactive_widgets(self, val: bool, trigger_widget: QPushButton = None):
+        for widget in self.interactive_widgets:
+            if widget is not trigger_widget:
+                widget.setEnabled(val)
+
+        for mod_widget in self.scroll_area_widget_contents.findChildren(QWidget, "modWidget"):
+            mod_widget.setEnabled(val)
+
+        if trigger_widget is None:
+            return
+
+        # Set trigger_widget to normal/stop button
+        trigger_widget.clicked.disconnect()
+        if trigger_widget.text() != "Stop":
+            trigger_widget.setText("Stop")
+            trigger_widget.setStyleSheet("QPushButton{background-color: #9e2c24;} QPushButton:pressed{background-color: #6b1d18;}")
+            trigger_widget.clicked.connect(self.stop_thread_action)
+        else:
+            if trigger_widget is self.search_mods_button:
+                trigger_widget.setText("Search Mods")
+                trigger_widget.clicked.connect(self.search_online)
+            elif trigger_widget is self.download_mods_button:
+                trigger_widget.setText("Download Mods")
+                trigger_widget.clicked.connect(self.download_mods)
+            trigger_widget.setStyleSheet("")
+
+    def stop_thread_action(self):
+        self.thread.stop()
 
     def save_settings(self):
         logging.info("Saving settings")
@@ -399,7 +460,8 @@ def load_logging():
 
 
 def except_hook(cls, exception, traceback):
-    logging.critical(f"{exception.__class__.__name__}: '{exception}' on line {traceback.tb_lineno}")
+    logging.critical(f"{exception.__class__.__name__}: '{exception}' on line {traceback.tb_lineno} "
+                     f"in file '{os.path.basename(exception.__traceback__.tb_frame.f_code.co_filename)}'")
     sys.__excepthook__(cls, exception, traceback)
 
 
