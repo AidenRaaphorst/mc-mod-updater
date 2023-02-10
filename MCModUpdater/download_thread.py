@@ -9,8 +9,10 @@ from MCModUpdater import utils
 
 class DownloadThread(QtCore.QThread):
     update_progress = QtCore.pyqtSignal()
-    hide_progress = QtCore.pyqtSignal()
     done = QtCore.pyqtSignal()
+    cancelled = QtCore.pyqtSignal()
+
+    _stop = False
 
     def __init__(self, mod_widgets, mod_folder):
         super().__init__()
@@ -21,6 +23,10 @@ class DownloadThread(QtCore.QThread):
     def run(self):
         logging.info("Downloading mods...")
         for i, widget in enumerate(self.mod_widgets):
+            if self._stop:
+                self.cancelled.emit()
+                return
+
             mod_url = widget.findChild(QLabel, 'modURL').text()
             file_name = utils.get_file_name_from_url(mod_url)
 
@@ -32,7 +38,8 @@ class DownloadThread(QtCore.QThread):
                 logging.error(f"Could not download '{file_name}', no internet connection or server is not responding")
             self.update_progress.emit()
 
-        self.hide_progress.emit()
         logging.info("Done\n")
-
         self.done.emit()
+
+    def stop(self):
+        self._stop = True

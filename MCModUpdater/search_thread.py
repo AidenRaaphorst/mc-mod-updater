@@ -13,11 +13,13 @@ from MCModUpdater.resources import constants
 
 class SearchThread(QtCore.QThread):
     update_progress = QtCore.pyqtSignal()
-    hide_progress = QtCore.pyqtSignal()
     done = QtCore.pyqtSignal()
+    cancelled = QtCore.pyqtSignal()
     append_failed_mod = QtCore.pyqtSignal(str)
     show_failed_mods = QtCore.pyqtSignal()
     make_and_append_mod_widget = QtCore.pyqtSignal(str, str, str, bytes, bool)
+
+    _gather = asyncio.gather()
 
     def __init__(self, mod_urls, mc_version, curseforge_mod_loader_type, modrinth_mod_loader):
         super().__init__()
@@ -134,10 +136,17 @@ class SearchThread(QtCore.QThread):
                     self.append_failed_mod.emit(url)
                     self.update_progress.emit()
 
-            return await asyncio.gather(*tasks)
+            self._gather = asyncio.gather(*tasks)
+            return await self._gather
 
-        asyncio.run(get_mods(self.mod_urls))
+        try:
+            asyncio.run(get_mods(self.mod_urls))
+        except asyncio.exceptions.CancelledError:
+            self.cancelled.emit()
+            return
 
         self.done.emit()
-        self.hide_progress.emit()
         self.show_failed_mods.emit()
+
+    def stop(self):
+        self._gather.get_loop().cancel()
