@@ -39,7 +39,7 @@ def _get_config_dir(root_dir: str, dir_name: str):
 
 
 # General
-APP_VERSION = "v1.3.1"
+APP_VERSION = "v1.3.2"
 
 # Paths
 ROOT_DIR = _get_root_dir("MCModUpdater")

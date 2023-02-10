@@ -252,9 +252,9 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
           <property name="geometry">
            <rect>
             <x>80</x>
-            <y>10</y>
+            <y>0</y>
             <width>291</width>
-            <height>21</height>
+            <height>31</height>
            </rect>
           </property>
           <property name="font">
@@ -335,9 +335,9 @@ Source: Something</string>
          </widget>
          <zorder>fileUrl</zorder>
          <zorder>modIcon</zorder>
-         <zorder>modName</zorder>
          <zorder>deleteButton</zorder>
          <zorder>modDetails</zorder>
+         <zorder>modName</zorder>
         </widget>
        </item>
       </layout>
@@ -345,6 +345,9 @@ Source: Something</string>
     </widget>
    </widget>
    <widget class="QFrame" name="settingsFrame">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -376,10 +379,13 @@ QPushButton:pressed {
 	color: #DCE4EE;
 	background-color: #20406d;
 }
+QPushButton:disabled {
+	color: #959aa1;
+	background-color: #183154;
+}
 #stopButton {
 	background-color: #9e2c24;
 }
-
 #stopButton:pressed {
 	background-color: #6b1d18;
 }
@@ -392,6 +398,11 @@ QLineEdit {
 	border-radius: 3px;
 	border: 1px solid #DCE4EE;
 }
+QLineEdit:disabled {
+	color: #959aa1;
+	background-color: rgba(255, 255, 255, 0.05);
+	border: 1px solid #959aa1;
+}
 
 
 /* ComboBox */
@@ -400,6 +411,10 @@ QComboBox {
 	color: #DCE4EE;
 	background-color: rgba(255, 255, 255, 0.1);
 }
+QComboBox:disabled {
+	color: #959aa1;
+	background-color: rgba(255, 255, 255, 0.05);
+}
 QComboBox QListView {
 	padding: 5px;
 	color: #DCE4EE;
@@ -407,11 +422,18 @@ QComboBox QListView {
 	border-radius: 0px;
 	outline: 0px;
 }
+QComboBox QListView:disabled {
+	color: #959aa1;
+	background-color: rgba(255, 255, 255, 0.05);
+}
 
 
 /* CheckBox */
 QCheckBox {
 	color: #DCE4EE;
+}
+QCheckBox:disabled {
+	color: #959aa1;
 }
 
 
@@ -423,45 +445,41 @@ QPlainTextEdit {
 	color: #DCE4EE;
 	background-color: rgba(255, 255, 255, 0.1);
 }
-/* VERTICAL SCROLLBAR */
-QScrollBar:vertical {
+QPlainTextEdit:disabled {
+	border: 1px solid #959aa1;
+	color: #959aa1;
+	background-color: rgba(255, 255, 255, 0.05);
+}
+/* SCROLLBAR */
+QScrollBar {
 	border: none;
     background: #3f3f3f;
-    width: 10px;
 	border-radius: 0px;
+}
+QScrollBar:vertical {
+    width: 10px;
  }
-/*  HANDLE BAR VERTICAL */
-QScrollBar::handle:vertical {	
+QScrollBar:horizontal {
+    height: 10px;
+}
+QScrollBar:disabled {
+    background: rgba(255, 255, 255, 0.0);
+ }
+/* HANDLE BAR */
+QScrollBar::handle {
 	background: #DCE4EE;
 	border-radius: 5px;
 }
-QScrollBar::handle:vertical:pressed {	
+QScrollBar::handle:pressed {	
 	background-color: #acb3bb;
+}
+QScrollBar::handle:disabled {
+	background: #959aa1;
 }
 /* BTN TOP - SCROLLBAR */
 QScrollBar::sub-line:vertical, 
 QScrollBar::add-line:vertical {
 	height: 0px;
-}
-/* RESET ARROW */
-QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical,
-QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
-	background: none;
-}
-/* HORIZONTAL SCROLLBAR */
-QScrollBar:horizontal {
-	border: none;
-    background: #3f3f3f;
-    height: 10px;
-	border-radius: 0px;
-}
-/*  HANDLE BAR HORIZONTAL */
-QScrollBar::handle:horizontal {
-	background: #DCE4EE;
-	border-radius: 5px;
-}
-QScrollBar::handle:horizontal:pressed {	
-	background-color: #acb3bb;
 }
 /* BTN TOP - SCROLLBAR */
 QScrollBar::sub-line:horizontal, 
@@ -469,6 +487,8 @@ QScrollBar::add-line:horizontal {
 	width: 0px;
 }
 /* RESET ARROW */
+QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical,
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical,
 QScrollBar::up-arrow:horizontal, QScrollBar::down-arrow:horizontal,
 QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
 	background: none;
@@ -518,6 +538,9 @@ QProgressBar::chunk {
      </property>
     </widget>
     <widget class="QLineEdit" name="folderInput">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -564,6 +587,9 @@ QProgressBar::chunk {
      </property>
     </widget>
     <widget class="QPlainTextEdit" name="modsTextEdit">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -578,8 +604,14 @@ QProgressBar::chunk {
        <pointsize>9</pointsize>
       </font>
      </property>
+     <property name="tabChangesFocus">
+      <bool>true</bool>
+     </property>
      <property name="lineWrapMode">
       <enum>QPlainTextEdit::NoWrap</enum>
+     </property>
+     <property name="plainText">
+      <string/>
      </property>
     </widget>
     <widget class="QLineEdit" name="versionInput">
@@ -674,6 +706,9 @@ QProgressBar::chunk {
      </property>
     </widget>
     <widget class="QComboBox" name="modloaderOptions">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>230</x>
@@ -796,6 +831,9 @@ QProgressBar::chunk {
      </property>
     </widget>
     <widget class="QPushButton" name="folderButton">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>380</x>
